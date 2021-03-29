@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import json
 from flask import Flask, render_template, request
-from flask_ngrok import run_with_ngrok
+# from flask_ngrok import run_with_ngrok
 import nltk
 from keras.models import load_model
 from nltk.stem import WordNetLemmatizer
@@ -27,7 +27,7 @@ all_list_count = ""
 
 
 app = Flask(__name__)
-run_with_ngrok(app)
+# run_with_ngrok(app)
 
 @app.route("/")
 def home():
