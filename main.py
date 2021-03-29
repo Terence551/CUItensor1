@@ -26,7 +26,6 @@ all_list = ""
 all_list_count = ""
 
 
-
 app = Flask(__name__)
 run_with_ngrok(app)
 
