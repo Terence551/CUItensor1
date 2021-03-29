@@ -127,6 +127,7 @@ def read_csv(sentence):
             choice2 = ""
             choice3 = ""
             for row in csv_reader:
+                # print(f"row in csv_reader: {row['UID']}, {row['Choice']}, {row['Course Code']}, {row['Recommended']}, {row['predict_recommend']}")
                 line_count += 1
                 if line_count == 1:
                     print(f'Column names are {", ".join(row)}')
@@ -136,38 +137,39 @@ def read_csv(sentence):
                             top_20 += 1
                             if row['Choice'] == '3':
                                 if choice3 == "":
-                                    choice3 += (row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'])
+                                    choice3 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                                 else:
-                                    choice3 += (" \n " + row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'] + " ")
+                                    choice3 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] + " ")
                             if row['Choice'] == '2':
                                 if choice2 == "":
-                                    choice2 += (row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'])
+                                    choice2 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                                 else:
-                                    choice2 += (" \n " + row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'] + " ")
+                                    choice2 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] + " ")
                             if row['Choice'] == '1':
                                 if choice1 == "":
-                                    choice1 += (row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'])
+                                    choice1 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                                 else:
-                                    choice1 += (" \n " + row['UID'][:-2].upper() + " Choice: " + row['Choice'] + " Recommended: " + row['Recommended'] + " ")
+                                    choice1 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] + " ")
                                 first_choice_count += 1
                             result_count += 1
                     elif condition_recommend == "not recommended":
                         top_20 += 1
                         if row['Choice'] == '3':
                             if choice3 == "":
-                                choice3 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'])
+                                # choice3 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['predict_recommend'])
+                                choice3 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                             else:
-                                choice3 += (" \n "+row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'] +" ")
+                                choice3 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] +" ")
                         if row['Choice'] == '2':
                             if choice2 == "":
-                                choice2 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'])
+                                choice2 += (row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                             else:
-                                choice2 += (" \n "+row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'] +" ")
+                                choice2 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] +" ")
                         if row['Choice'] == '1':
                             if choice1 == "":
-                                choice1 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'])
+                                choice1 += (row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'])
                             else:
-                                choice1 += (" \n "+row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Recommended: " + row['Recommended'] +" ")
+                                choice1 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['Recommended'] + " Predict Recommended: " + row['predict_recommend'] +" ")
                             first_choice_count += 1
                         result_count += 1
             result = choice1 + "\n " + choice2 + "\n " + choice3
