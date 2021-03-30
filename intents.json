@@ -2,8 +2,109 @@
     "intents": [
         {
             "tag": "SIT",
-            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80"],
+            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80", "student", "students", "apply"],
             "responses": ["search_student"],
+            "context": [""]
+        },
+        {
+            "tag": "data",
+            "patterns": ["data", "information", "datum", "data_point"],
+            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "context": [""]
+        },
+        {
+            "tag": "coding",
+            "patterns": [
+                "cryptography", "coding", "secret_writing", "steganography",
+                "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
+                "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
+                "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
+                "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride"
+            ],
+            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "context": [""]
+        },
+        {
+            "tag": "programming",
+            "patterns": [
+                "scheduling", "programming", "programing", "programming", "programing",
+                "computer_programming", "computer_programing", "program", "programme", "program", "programme"
+            ],
+            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "context": [""]
+        },
+        {
+            "tag": "python",
+            "patterns": [
+                "python", "python", "Python"
+            ],
+            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "context": [""]
+        },
+        {
+            "tag": "achievement",
+            "patterns": [
+                "accomplishment", "achievement"
+            ],
+            "responses": ["2, 8, 12, 14, 16"],
+            "context": [""]
+        },
+        {
+            "tag": "participation",
+            "patterns": ["engagement", "participation", "involvement", "involution", "participation", "involvement"],
+            "responses": ["0, 1, 3, 4, 13"],
+            "context": [""]
+        },
+        {
+            "tag": "business",
+            "patterns": [
+                "business", "concern", "business_concern", "business_organization",
+                "business_organisation", "commercial_enterprise", "business_enterprise",
+                "business", "occupation", "business", "job", "line_of_work", "line",
+                "business", "business", "business", "business", "business_sector", "clientele",
+                "patronage", "business", "business", "stage_business", "byplay"
+            ],
+            "responses": ["business_topic"],
+            "context": [""]
+        },
+        {
+            "tag": "certificate",
+            "patterns": [
+                "certificate", "certification", "credential", "credentials",
+                "security", "certificate", "certificate", "certificate"
+            ],
+            "responses": ["certificate_topic"],
+            "context": [""]
+        },
+        {
+            "tag": "challenges",
+            "patterns": [
+                "challenge", "challenge", "challenge", "challenge",
+                "challenge", "challenge", "dispute", "gainsay", "challenge",
+                "challenge", "challenge", "take_exception"
+            ],
+            "responses": ["challenges_topic"],
+            "context": [""]
+        },
+        {
+            "tag": "Co-curricular activities",
+            "patterns": [""],
+            "responses": ["Co-curricular_activities_topic"],
+            "context": [""]
+        },
+        {
+            "tag": "values",
+            "patterns": ["values", "value", "value", "value", "economic_value", "value",
+                "value", "time_value", "note_value", "value", "value", "prize", "value",
+                "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
+                "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"],
+            "responses": ["values_topic"],
+            "context": [""]
+        },
+        {
+            "tag": "noanswer",
+            "patterns": [""],
+            "responses": ["Sorry, I do not understand"],
             "context": [""]
         },
         {
@@ -22,12 +123,6 @@
             "tag": "thanks",
             "patterns": ["Thanks", "okay","Thank you","thankyou", "That's helpful", "Awesome, thanks", "Thanks for helping me", "wow", "great"],
             "responses": ["Happy to help!", "Any time!","you're welcome", "My pleasure"],
-            "context": [""]
-        },
-        {
-            "tag": "noanswer",
-            "patterns": [""],
-            "responses": ["Sorry, I didn't understand you", "Please give me more info", "Not sure I understand that"],
             "context": [""]
         },
         {
@@ -205,18 +300,6 @@
             "context": [""]
         },
         {
-            "tag": "business",
-            "patterns": ["  What is your business "],
-            "responses": [" I am in the chat robot business.", " Business is my business."],
-            "context": [""]
-        },
-        {
-            "tag": "programming",
-            "patterns": ["  What is your favorite programming language"],
-            "responses": [" Python is the best language for creating chat robots.", " I quite enjoy programming in Python these days."],
-            "context": [""]
-        },
-        {
             "tag": "hobby",
             "patterns": ["  What is your favorite hobby ", "  What do you like to do?"],
             "responses": [" Building chat robots make an excellent hobby.", " I like to count in binary.", " I like to chat with people. I find it stimulating."],
@@ -321,7 +404,7 @@
         {
             "tag": "do",
             "patterns": ["what can you do for me","what is your work","what is your purpose","how can you help me","what can you help me do"],
-            "responses": ["my work here is quite simple and structered. I offer services like:"],
+            "responses": ["I'm still learning so I may not be able to answer all your questions yet.\nYou can start by asking:\n- Give me the recommended students for DIT\n- Give me the list of students who participated in competition"],
             "context": [""]
         },
         {
