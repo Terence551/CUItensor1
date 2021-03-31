@@ -13,6 +13,7 @@ lemmatizer = WordNetLemmatizer()
 
 
 # chat initialization
+# model = load_model("chatbot_model.h5")
 model = load_model("chatbot_model.h5")
 intents = json.loads(open("intents.json").read())
 words = pickle.load(open("words.pkl", "rb"))
@@ -40,6 +41,8 @@ def chatbot_response():
     global first_request
     msg = request.form["msg"]
     res = ''
+    condition_topic = ''
+    condition_course = ''
     if msg.startswith('my name is'):
         name = msg[11:]
         # tokenize the pattern
@@ -65,11 +68,13 @@ def chatbot_response():
     elif msg.lower() == 'y':
         if first_request:
             print("---continue from previous conversation - y")
-            res = f"Found {first_choice_count} students \n " + first_choice_list + "\n\n Anything else I can help you now?"
+            res = f"There are {first_choice_count} {condition_course} students {condition_topic}\n " + first_choice_list + "\n\n Anything else I can help you now?"
+            first_request = ""
     elif msg.lower() == 'n':
         if first_request:
             print("---continue from previous conversation - n")
-            res = f"Found {all_list_count} students \n " + all_list + "\n\n Anything else I can help you now?"
+            res = f"Found {all_list_count} {condition_course} students {condition_topic}\n " + all_list + "\n\n Anything else I can help you now?"
+            first_request = ""
     else:
         # tokenize the pattern
         msg = clean_up_sentence(msg)
@@ -83,7 +88,7 @@ def chatbot_response():
     if res == "search_student":
         # res = "searching student..."
         # print("searching student...")
-        res_done, res = read_csv(msg)
+        res_done, res, condition_topic, condition_course, condition_recommend = read_csv(msg)
         if res_done == 'yes':
             res += "\n\n Anything else I can help you now?"
 
@@ -285,18 +290,21 @@ def read_csv(sentence):
             all_list_count = result_count
             result_complete = 'no'
             result = \
-                f"The list is too long ({result_count} {condition_course} students),\n" \
-                f" would you like to look for students \n who applied 1st choice?(Y/N)"
+                f"The list is too long ({result_count} {condition_course} students)," \
+                f" would you like to look for students who applied 1st choice?(Y/N)"
 
         # print(f"---result: {result}")
-        print(f"---all_list : \n{all_list}")
+        # print(f"---all_list : \n{all_list}")
         print(f'Processed top {top_20} in total.')
         print(f'Processed {first_choice_count} first choices in total.')
         print(f'Processed {result_count} results in total.')
         print(f'Processed {line_count} lines in total.')
         print(f'Request Completed? {result_complete}')
 
-    return result_complete, result
+    return result_complete, result, condition_topic, condition_course, condition_recommend
+
+
+# add to result
 
 
 # chat functionalities
@@ -333,64 +341,64 @@ def check_sentence(sentence):
         if w == 'dsf':
         # Cybersecurity & Digital Forensics
             sentence[i] = 'c54'
-        '''
-        setting condition_topic
-        '''
-        for s in [
-            # data
-            "data", "information", "datum", "data_point",
-            # coding
-            "cryptography", "coding", "secret_writing", "steganography",
-            "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
-            "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
-            "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
-            "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
-            # programming
-            "scheduling", "programming", "programing", "programming", "programing",
-            "computer_programming", "computer_programing", "program", "programme", "program", "programme",
-            # python
-            "python", "python", "Python"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_1'
-
-        for s in [
-            # achievement
-            "accomplishment", "achievement"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_2'
-
-        for s in [
-            # participation
-            "engagement", "participation", "involvement", "involution", "participation", "involvement"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_3'
-
-        for s in [
-            # business
-            "business", "concern", "business_concern", "business_organization",
-            "business_organisation", "commercial_enterprise", "business_enterprise",
-            "business", "occupation", "business", "job", "line_of_work", "line",
-            "business", "business", "business", "business", "business_sector", "clientele",
-            "patronage", "business", "business", "stage_business", "byplay",
-            # certificates
-            "certificate", "certification", "credential", "credentials",
-            "security", "certificate", "certificate", "certificate",
-            # challenges
-            "challenge", "challenge", "challenge", "challenge",
-            "challenge", "challenge", "dispute", "gainsay", "challenge",
-            "challenge", "challenge", "take_exception",
-            # cca
-            # values
-            "values", "value", "value", "value", "economic_value", "value",
-            "value", "time_value", "note_value", "value", "value", "prize", "value",
-            "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
-            "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_4'
+        # '''
+        # setting condition_topic
+        # '''
+        # for s in [
+        #     # data
+        #     "data", "information", "datum", "data_point",
+        #     # coding
+        #     "cryptography", "coding", "secret_writing", "steganography",
+        #     "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
+        #     "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
+        #     "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
+        #     "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
+        #     # programming
+        #     "scheduling", "programming", "programing", "programming", "programing",
+        #     "computer_programming", "computer_programing", "program", "programme", "program", "programme",
+        #     # python
+        #     "python", "python", "Python"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_1'
+        #
+        # for s in [
+        #     # achievement
+        #     "accomplishment", "achievement"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_2'
+        #
+        # for s in [
+        #     # participation
+        #     "engagement", "participation", "involvement", "involution", "participation", "involvement"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_3'
+        #
+        # for s in [
+        #     # business
+        #     "business", "concern", "business_concern", "business_organization",
+        #     "business_organisation", "commercial_enterprise", "business_enterprise",
+        #     "business", "occupation", "business", "job", "line_of_work", "line",
+        #     "business", "business", "business", "business", "business_sector", "clientele",
+        #     "patronage", "business", "business", "stage_business", "byplay",
+        #     # certificates
+        #     "certificate", "certification", "credential", "credentials",
+        #     "security", "certificate", "certificate", "certificate",
+        #     # challenges
+        #     "challenge", "challenge", "challenge", "challenge",
+        #     "challenge", "challenge", "dispute", "gainsay", "challenge",
+        #     "challenge", "challenge", "take_exception",
+        #     # cca
+        #     # values
+        #     "values", "value", "value", "value", "economic_value", "value",
+        #     "value", "time_value", "note_value", "value", "value", "prize", "value",
+        #     "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
+        #     "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_4'
 
 
     print("---return sentence:", sentence)
@@ -399,7 +407,7 @@ def check_sentence(sentence):
 
 # return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
 def bow(sentence, words, show_details=True):
-    print("---enters bow(sentence,words,show_details=True)", sentence,words)
+    print("---enters bow(sentence,words,show_details=True)", sentence)
     # # tokenize the pattern
     # sentence_words = clean_up_sentence(sentence)
     # bag of words - matrix of N words, vocabulary matrix
@@ -423,19 +431,23 @@ def predict_class(sentence, model):
     print("---enters predict_class(sentence,model) ", sentence,model)
     # filter out predictions below a threshold
     p = bow(sentence, words, show_details=False)
+    # print(f"---p: {p}")
     res = model.predict(np.array([p]))[0]
+    # print(f"---res: {res}")
     ERROR_THRESHOLD = 0.25
     results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
+    print(f"---results: {results}")
     # sort by strength of probability
     results.sort(key=lambda x: x[1], reverse=True)
     return_list = []
     for r in results:
         return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
+    print(f"---return_list: {return_list}")
     return return_list
 
 
 def getResponse(ints, intents_json):
-    print("---enters getResponse(ints,intents_json)", ints, intents_json)
+    print("---enters getResponse(ints,intents_json)", ints)
     result = ""
     tag = ints[0]["intent"]
     list_of_intents = intents_json["intents"]

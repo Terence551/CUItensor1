@@ -2,14 +2,14 @@
     "intents": [
         {
             "tag": "SIT",
-            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80", "student", "students", "apply"],
+            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80"],
             "responses": ["search_student"],
             "context": [""]
         },
         {
             "tag": "data",
             "patterns": ["data", "information", "datum", "data_point"],
-            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "responses": ["topic_1"],
             "context": [""]
         },
         {
@@ -21,7 +21,7 @@
                 "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
                 "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride"
             ],
-            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "responses": ["topic_1"],
             "context": [""]
         },
         {
@@ -30,7 +30,7 @@
                 "scheduling", "programming", "programing", "programming", "programing",
                 "computer_programming", "computer_programing", "program", "programme", "program", "programme"
             ],
-            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "responses": ["topic_1"],
             "context": [""]
         },
         {
@@ -38,7 +38,7 @@
             "patterns": [
                 "python", "python", "Python"
             ],
-            "responses": ["5, 7, 9, 10, 14, 17, 19"],
+            "responses": ["topic_1"],
             "context": [""]
         },
         {
@@ -46,13 +46,13 @@
             "patterns": [
                 "accomplishment", "achievement"
             ],
-            "responses": ["2, 8, 12, 14, 16"],
+            "responses": ["topic_2"],
             "context": [""]
         },
         {
             "tag": "participation",
             "patterns": ["engagement", "participation", "involvement", "involution", "participation", "involvement"],
-            "responses": ["0, 1, 3, 4, 13"],
+            "responses": ["topic_3"],
             "context": [""]
         },
         {
@@ -64,7 +64,7 @@
                 "business", "business", "business", "business", "business_sector", "clientele",
                 "patronage", "business", "business", "stage_business", "byplay"
             ],
-            "responses": ["business_topic"],
+            "responses": ["topic_4"],
             "context": [""]
         },
         {
@@ -73,7 +73,7 @@
                 "certificate", "certification", "credential", "credentials",
                 "security", "certificate", "certificate", "certificate"
             ],
-            "responses": ["certificate_topic"],
+            "responses": ["topic_4"],
             "context": [""]
         },
         {
@@ -83,13 +83,13 @@
                 "challenge", "challenge", "dispute", "gainsay", "challenge",
                 "challenge", "challenge", "take_exception"
             ],
-            "responses": ["challenges_topic"],
+            "responses": ["topic_4"],
             "context": [""]
         },
         {
-            "tag": "Co-curricular activities",
-            "patterns": [""],
-            "responses": ["Co-curricular_activities_topic"],
+            "tag": "co-curricular activities",
+            "patterns": ["Co-curricular activities", "cca"],
+            "responses": ["topic_4"],
             "context": [""]
         },
         {
@@ -98,7 +98,7 @@
                 "value", "time_value", "note_value", "value", "value", "prize", "value",
                 "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
                 "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"],
-            "responses": ["values_topic"],
+            "responses": ["topic_4"],
             "context": [""]
         },
         {
@@ -110,7 +110,7 @@
         {
             "tag": "greetings",
             "patterns": ["hi there", "hello","haroo","yaw","wassup", "hi", "hey", "holla", "hello"],
-            "responses": ["hi, i am here to serve you", "hi, how may i help you"],
+            "responses": ["hi, I am here to serve you", "hi, how may I help you"],
             "context": [""]
         },
         {
@@ -122,7 +122,7 @@
         {
             "tag": "thanks",
             "patterns": ["Thanks", "okay","Thank you","thankyou", "That's helpful", "Awesome, thanks", "Thanks for helping me", "wow", "great"],
-            "responses": ["Happy to help!", "Any time!","you're welcome", "My pleasure"],
+            "responses": ["Happy to help!", "Any time!","You're welcome", "My pleasure"],
             "context": [""]
         },
         {
@@ -140,13 +140,13 @@
         {
             "tag": "date",
             "patterns": ["coffee?", "can i take you out on a date"],
-            "responses": ["Aaw, that's so sweet of you. Too bad am a Bot."],
+            "responses": ["Aaw, that's so sweet of you. Too bad I am a Bot."],
             "context": [""]
         },
         {
             "tag": "fav",
             "patterns": ["I need a favour", "can you help me"],
-            "responses": ["Well, go ahead and name it i see whether i can be able to help"],
+            "responses": ["Well, go ahead and name it I see whether I can be able to help"],
             "context": [""]
         },
         {
