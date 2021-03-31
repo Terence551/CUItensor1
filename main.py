@@ -13,8 +13,8 @@ lemmatizer = WordNetLemmatizer()
 
 
 # chat initialization
-# model = load_model("chatbot_model.h5")
 model = load_model("chatbot_model.h5")
+# model = load_model("chatbot_modelTopic.h5")
 intents = json.loads(open("intents.json").read())
 words = pickle.load(open("words.pkl", "rb"))
 classes = pickle.load(open("classes.pkl", "rb"))
@@ -341,64 +341,64 @@ def check_sentence(sentence):
         if w == 'dsf':
         # Cybersecurity & Digital Forensics
             sentence[i] = 'c54'
-        # '''
-        # setting condition_topic
-        # '''
-        # for s in [
-        #     # data
-        #     "data", "information", "datum", "data_point",
-        #     # coding
-        #     "cryptography", "coding", "secret_writing", "steganography",
-        #     "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
-        #     "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
-        #     "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
-        #     "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
-        #     # programming
-        #     "scheduling", "programming", "programing", "programming", "programing",
-        #     "computer_programming", "computer_programing", "program", "programme", "program", "programme",
-        #     # python
-        #     "python", "python", "Python"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_1'
-        #
-        # for s in [
-        #     # achievement
-        #     "accomplishment", "achievement"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_2'
-        #
-        # for s in [
-        #     # participation
-        #     "engagement", "participation", "involvement", "involution", "participation", "involvement"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_3'
-        #
-        # for s in [
-        #     # business
-        #     "business", "concern", "business_concern", "business_organization",
-        #     "business_organisation", "commercial_enterprise", "business_enterprise",
-        #     "business", "occupation", "business", "job", "line_of_work", "line",
-        #     "business", "business", "business", "business", "business_sector", "clientele",
-        #     "patronage", "business", "business", "stage_business", "byplay",
-        #     # certificates
-        #     "certificate", "certification", "credential", "credentials",
-        #     "security", "certificate", "certificate", "certificate",
-        #     # challenges
-        #     "challenge", "challenge", "challenge", "challenge",
-        #     "challenge", "challenge", "dispute", "gainsay", "challenge",
-        #     "challenge", "challenge", "take_exception",
-        #     # cca
-        #     # values
-        #     "values", "value", "value", "value", "economic_value", "value",
-        #     "value", "time_value", "note_value", "value", "value", "prize", "value",
-        #     "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
-        #     "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_4'
+        '''
+        setting condition_topic
+        '''
+        for s in [
+            # data
+            "data", "information", "datum", "data_point",
+            # coding
+            "cryptography", "coding", "secret_writing", "steganography",
+            "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
+            "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
+            "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
+            "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
+            # programming
+            "scheduling", "programming", "programing", "programming", "programing",
+            "computer_programming", "computer_programing", "program", "programme", "program", "programme",
+            # python
+            "python", "python", "Python"
+        ]:
+            if w == s:
+                sentence[i] = 'topic_1'
+
+        for s in [
+            # achievement
+            "accomplishment", "achievement"
+        ]:
+            if w == s:
+                sentence[i] = 'topic_2'
+
+        for s in [
+            # participation
+            "engagement", "participation", "involvement", "involution", "participation", "involvement"
+        ]:
+            if w == s:
+                sentence[i] = 'topic_3'
+
+        for s in [
+            # business
+            "business", "concern", "business_concern", "business_organization",
+            "business_organisation", "commercial_enterprise", "business_enterprise",
+            "business", "occupation", "business", "job", "line_of_work", "line",
+            "business", "business", "business", "business", "business_sector", "clientele",
+            "patronage", "business", "business", "stage_business", "byplay",
+            # certificates
+            "certificate", "certification", "credential", "credentials",
+            "security", "certificate", "certificate", "certificate",
+            # challenges
+            "challenge", "challenge", "challenge", "challenge",
+            "challenge", "challenge", "dispute", "gainsay", "challenge",
+            "challenge", "challenge", "take_exception",
+            # cca
+            # values
+            "values", "value", "value", "value", "economic_value", "value",
+            "value", "time_value", "note_value", "value", "value", "prize", "value",
+            "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
+            "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
+        ]:
+            if w == s:
+                sentence[i] = 'topic_4'
 
 
     print("---return sentence:", sentence)
