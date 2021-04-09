@@ -1,3 +1,5 @@
 venv
 #train.py
 requireworking.txt
+chatbot_modelTopic.h5
+topics_synonyms.xlsx

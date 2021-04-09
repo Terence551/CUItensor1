@@ -2,7 +2,7 @@
     "intents": [
         {
             "tag": "SIT",
-            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80"],
+            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80", "apply for", "students for"],
             "responses": ["search_student"],
             "context": [""]
         },
@@ -121,7 +121,7 @@
         },
         {
             "tag": "thanks",
-            "patterns": ["Thanks", "okay","Thank you","thankyou", "That's helpful", "Awesome, thanks", "Thanks for helping me", "wow", "great"],
+            "patterns": ["Thanks", "okay","Thank you","thankyou", "That's helpful", "Awesome, thanks", "wow", "great"],
             "responses": ["Happy to help!", "Any time!","You're welcome", "My pleasure"],
             "context": [""]
         },

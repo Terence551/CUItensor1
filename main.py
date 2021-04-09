@@ -22,10 +22,10 @@ classes = pickle.load(open("classes.pkl", "rb"))
 # Scenario initialization
 first_request = []
 first_choice_list = ""
-first_choice_count = ""
+first_choice_count = 0
 all_list = ""
 all_list_count = ""
-
+gcondition_course = ""
 
 app = Flask(__name__)
 # run_with_ngrok(app)
@@ -39,10 +39,10 @@ def home():
 def chatbot_response():
     print("---enters chatbot_response()")
     global first_request
+    global gcondition_course
     msg = request.form["msg"]
     res = ''
-    condition_topic = ''
-    condition_course = ''
+    condition_recommend = ''
     if msg.startswith('my name is'):
         name = msg[11:]
         # tokenize the pattern
@@ -68,78 +68,99 @@ def chatbot_response():
     elif msg.lower() == 'y':
         if first_request:
             print("---continue from previous conversation - y")
-            res = f"There are {first_choice_count} {condition_course} students {condition_topic}\n " + first_choice_list + "\n\n Anything else I can help you now?"
+            res = f"There are {first_choice_count}{gcondition_course} students\n " + first_choice_list
             first_request = ""
     elif msg.lower() == 'n':
         if first_request:
             print("---continue from previous conversation - n")
-            res = f"Found {all_list_count} {condition_course} students {condition_topic}\n " + all_list + "\n\n Anything else I can help you now?"
+            res = f"There are {all_list_count}{gcondition_course} students\n " + all_list
             first_request = ""
     else:
         # tokenize the pattern
-        msg = clean_up_sentence(msg)
+        msg, condition_course, condition_recommend = clean_up_sentence(msg)
         # save pattern to global for next use (if needed)
         first_request = msg
+        condition_course = condition_course
         # predict and get response
         ints = predict_class(msg, model)
         res = getResponse(ints, intents)
 
-    # search student 'function' from json file
-    if res == "search_student":
-        # res = "searching student..."
-        # print("searching student...")
-        res_done, res, condition_topic, condition_course, condition_recommend = read_csv(msg)
+    if res == "topic_1" or res == "topic_2" or res == "topic_3" or res == "topic_4" or res == "search_student":
+        res_done, res, condition_course = read_csv(msg, res, condition_course, condition_recommend)
         if res_done == 'yes':
-            res += "\n\n Anything else I can help you now?"
+            res += "\n\nAnything else I can help you now?"
+    else:
+        res += "\n\nAnything else I can help you now?"
 
-    # print("---return:", res)
+    print("---return:", res)
     return res
 
 
+# setting condition_topic
+def set_condition_topic(condition_topic):
+    if condition_topic == 'topic_1':
+        condition_topic = ["5", "7", "9", "10", "14", "17", "19"]
+    elif condition_topic == 'topic_2':
+        condition_topic = ["2", "8", "12", "14", "16"]
+    elif condition_topic == 'topic_3':
+        condition_topic = ["0", "1", "3", "4", "13"]
+    elif condition_topic == 'topic_4':
+        condition_topic = ["6", "11", "15", "18"]
+    elif condition_topic == 'search_student':
+        condition_topic = 'no'
+    return condition_topic
+
+
+# adding to choice1,2,3
+def add_to_choice(row, course, recommend, topic, choice3, choice2, choice1):
+    # print("---enter add_to_choice: course recommend topic:", course, recommend, topic)
+    global first_choice_count
+
+    row_to_be_added = ''
+    row_to_be_added = row['UID'].upper() \
+                      + " Choice: " + row['Choice']
+    if course != 'nil':
+        row_to_be_added += " Applied: " + row['Course Code']
+    if recommend != 'not recommended':
+        row_to_be_added += " Recommended: " + row['predict_recommend']
+    if topic != 'no':
+        row_to_be_added += " Topic: " + row['predictedTopic']
+    row_to_be_added += " Probability: " + row['predProb']
+
+    if row['Choice'] == '3':
+        choice3 += (" \n " + row_to_be_added + " ")
+    if row['Choice'] == '2':
+        choice2 += (" \n " + row_to_be_added + " ")
+    if row['Choice'] == '1':
+        choice1 += (" \n " + row_to_be_added + " ")
+        first_choice_count += 1
+
+    return first_choice_count, choice3, choice2, choice1
+
+
+
+
 # reading csv file
-def read_csv(sentence):
+def read_csv(sentence, condition_topic, condition_course, condition_recommend):
     print("---enters read_csv(sentence)", sentence)
     global first_choice_list
     global first_choice_count
     global all_list
     global all_list_count
-    condition_course = ""
-    condition_recommend = "not recommended"
-    condition_topic = ""
-    for w in sentence:
-        # finding the condition_course
-        if w == 'c85':
-            condition_course = 'c85'
-        if w == 'c80':
-            condition_course = 'c80'
-        if w == 'c36':
-            condition_course = 'c36'
-        if w == 'c35':
-            condition_course = 'c35'
-        if w == 'c43':
-            condition_course = 'c43'
-        if w == 'c54':
-            condition_course = 'c54'
-        # find condition_recommend
-        if w == 'recommended':
-            condition_recommend = 'recommended'
-        # find condition_topic
-        if w == 'topic_1':
-            condition_topic = ["5", "7", "9", "10", "14", "17", "19"]
-        if w == 'topic_2':
-            condition_topic = ["2", "8", "12", "14", "16"]
-        if w == 'topic_3':
-            condition_topic = ["0", "1", "3", "4", "13"]
-        if w == 'topic_4':
-            condition_topic = ["6", "11", "15", "18"]
+    global gcondition_course
+    condition_course = condition_course
+    condition_recommend = condition_recommend
+    condition_topic = set_condition_topic(condition_topic)
 
     print(f'Condition Course: {condition_course}'
           f'\nCondition Recommended: {condition_recommend}'
           f'\nCondition Topic: {condition_topic}')
-    # finding result from file
-    # result = "Please provide a course (dit, dba, dbft, dsf, dcs, cip)"
-    # if condition_course != "":
-    with open('finalfinal.csv', mode='r') as csv_file:
+
+    # reading result from file
+    # with open('finalfinal.csv', mode='r') as csv_file:
+    #     csv_reader = sorted(csv_file, key=lambda row: row[7])
+    #     csv_reader = csv.DictReader(csv_reader)
+    with open('finalfinalsortedPredProd.csv', mode='r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
         result_count = 0
@@ -151,138 +172,101 @@ def read_csv(sentence):
         choice3 = ""
         for row in csv_reader:
             # print(f"row in csv_reader: {row['UID']}, {row['Choice']}, {row['Course Code']}, {row['Recommended']}, {row['predict_recommend']}")
-            line_count += 1
-            if line_count == 1:
-                print(f'Column names are {", ".join(row)}')
+            # line_count += 1
+            # if line_count == 1:
+            #     print(f'Column names are {", ".join(row)}')
             # condition_topic check
-            if condition_topic != "":
+            if condition_topic != 'no':
                 for topic in condition_topic:
+                    # row[6]
                     if topic == row['predictedTopic']:
                         # condition_course check
-                        if condition_course.upper() == row['Course Code'].upper():
+                        if condition_course != 'nil':
+                            # row[3]
+                            if condition_course.upper() == row['Course Code'].upper():
+                                # condition_recommend check
+                                if condition_recommend == 'recommended':
+                                    # row[5]
+                                    if row['predict_recommend'] == '1':
+                                        top_20 += 1
+                                        first_choice_count, choice3, choice2, choice1 = add_to_choice(row,
+                                                                                                      condition_course,
+                                                                                                      condition_recommend,
+                                                                                                      condition_topic,
+                                                                                                      choice3,
+                                                                                                      choice2, choice1)
+                                        result_count += 1
+                                elif condition_recommend == "not recommended":
+                                    top_20 += 1
+                                    first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                                  condition_recommend,
+                                                                                                  condition_topic,
+                                                                                                  choice3,
+                                                                                                  choice2, choice1)
+                                    result_count += 1
+                        elif condition_course == 'nil':
                             # condition_recommend check
                             if condition_recommend == 'recommended':
                                 if row['predict_recommend'] == '1':
                                     top_20 += 1
-                                    if row['Choice'] == '3':
-                                        if choice3 == "":
-                                            choice3 += (row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'])
-                                        else:
-                                            choice3 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'] + " ")
-                                    if row['Choice'] == '2':
-                                        if choice2 == "":
-                                            choice2 += (row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'])
-                                        else:
-                                            choice2 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'] + " ")
-                                    if row['Choice'] == '1':
-                                        if choice1 == "":
-                                            choice1 += (row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'])
-                                        else:
-                                            choice1 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                                'Choice'] + " Applied: " + row[
-                                                            'Course Code'] + " Predict Recommended: " + row[
-                                                            'predict_recommend'] + " Predict Topic: " + row[
-                                                        'predictedTopic'] + " ")
-                                        first_choice_count += 1
+                                    first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                                  condition_recommend,
+                                                                                                  condition_topic,
+                                                                                                  choice3,
+                                                                                                  choice2, choice1)
                                     result_count += 1
                             elif condition_recommend == "not recommended":
                                 top_20 += 1
-                                if row['Choice'] == '3':
-                                    if choice3 == "":
-                                        # choice3 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['predict_recommend'])
-                                        choice3 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " +
-                                                    row['Course Code'] + " Predict_Topic: " + row[
-                                                        'predictedTopic'])
-                                    else:
-                                        choice3 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                            'Choice'] + " Applied: " + row['Course Code'] + " Predict_Topic: " +
-                                                    row['predictedTopic'] + " ")
-                                if row['Choice'] == '2':
-                                    if choice2 == "":
-                                        choice2 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " +
-                                                    row['Course Code'] + " Predict_Topic: " + row[
-                                                        'predictedTopic'])
-                                    else:
-                                        choice2 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                            'Choice'] + " Applied: " + row['Course Code'] + " Predict_Topic: " +
-                                                    row['predictedTopic'] + " ")
-                                if row['Choice'] == '1':
-                                    if choice1 == "":
-                                        choice1 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " +
-                                                    row['Course Code'] + " Predict_Topic: " + row[
-                                                        'predictedTopic'])
-                                    else:
-                                        choice1 += (" \n " + row['UID'].upper() + " Choice: " + row[
-                                            'Choice'] + " Applied: " + row['Course Code'] + " Predict_Topic: " +
-                                                    row['predictedTopic'] + " ")
-                                    first_choice_count += 1
+                                first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                              condition_recommend,
+                                                                                              condition_topic, choice3,
+                                                                                              choice2, choice1)
                                 result_count += 1
             else:
                 # condition_course check
-                if condition_course.upper() == row['Course Code'].upper():
+                if condition_course != 'nil':
+                    if condition_course.upper() == row['Course Code'].upper():
+                        # condition_recommend check
+                        if condition_recommend == 'recommended':
+                            if row['predict_recommend'] == '1':
+                                top_20 += 1
+                                first_choice_count, choice3, choice2, choice1 = add_to_choice(row,
+                                                                                              condition_course,
+                                                                                              condition_recommend,
+                                                                                              condition_topic,
+                                                                                              choice3,
+                                                                                              choice2, choice1)
+                                result_count += 1
+                        elif condition_recommend == "not recommended":
+                            top_20 += 1
+                            first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                          condition_recommend,
+                                                                                          condition_topic,
+                                                                                          choice3,
+                                                                                          choice2, choice1)
+                            result_count += 1
+                elif condition_course == 'nil':
                     # condition_recommend check
                     if condition_recommend == 'recommended':
                         if row['predict_recommend'] == '1':
                             top_20 += 1
-                            if row['Choice'] == '3':
-                                if choice3 == "":
-                                    choice3 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                                else:
-                                    choice3 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] + " ")
-                            if row['Choice'] == '2':
-                                if choice2 == "":
-                                    choice2 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                                else:
-                                    choice2 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] + " ")
-                            if row['Choice'] == '1':
-                                if choice1 == "":
-                                    choice1 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                                else:
-                                    choice1 += (" \n " + row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] + " ")
-                                first_choice_count += 1
+                            first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                          condition_recommend,
+                                                                                          condition_topic,
+                                                                                          choice3,
+                                                                                          choice2, choice1)
                             result_count += 1
                     elif condition_recommend == "not recommended":
                         top_20 += 1
-                        if row['Choice'] == '3':
-                            if choice3 == "":
-                                # choice3 += (row['UID'][:-2].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Recommended: " + row['predict_recommend'])
-                                choice3 += (row['UID'].upper() + " Choice: " + row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                            else:
-                                choice3 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] +" ")
-                        if row['Choice'] == '2':
-                            if choice2 == "":
-                                choice2 += (row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                            else:
-                                choice2 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] +" ")
-                        if row['Choice'] == '1':
-                            if choice1 == "":
-                                choice1 += (row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'])
-                            else:
-                                choice1 += (" \n "+row['UID'].upper()+" Choice: "+row['Choice'] + " Applied: " + row['Course Code'] + " Predict Recommended: " + row['predict_recommend'] +" ")
-                            first_choice_count += 1
+                        first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
+                                                                                      condition_recommend,
+                                                                                      condition_topic, choice3,
+                                                                                      choice2, choice1)
                         result_count += 1
-        result = choice1 + "\n " + choice2 + "\n " + choice3
+        result = choice1 + choice2 + choice3
 
+        if condition_course == 'nil':
+            gcondition_course = ''
         # if too many results
         if top_20 > 20:
             first_choice_list = choice1
@@ -290,7 +274,7 @@ def read_csv(sentence):
             all_list_count = result_count
             result_complete = 'no'
             result = \
-                f"The list is too long ({result_count} {condition_course} students)," \
+                f"The list is too long ({result_count} {gcondition_course} students)," \
                 f" would you like to look for students who applied 1st choice?(Y/N)"
 
         # print(f"---result: {result}")
@@ -301,7 +285,7 @@ def read_csv(sentence):
         print(f'Processed {line_count} lines in total.')
         print(f'Request Completed? {result_complete}')
 
-    return result_complete, result, condition_topic, condition_course, condition_recommend
+    return result_complete, result, condition_course
 
 
 # add to result
@@ -313,11 +297,14 @@ def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
     print("---return:", sentence_words)
-    result_check_sentence = check_sentence(sentence_words)
-    return result_check_sentence
+    result_check_sentence, condition_course, condition_recommend = check_sentence(sentence_words)
+    return result_check_sentence, condition_course, condition_recommend
 
 
+# Check sentence for conditions
 def check_sentence(sentence):
+    condition_course = 'nil'
+    condition_recommend = 'not recommended'
     print("---enter check_sentence(sentence)", sentence)
     for i, w in enumerate(sentence):
         # sentence = ['some', 'words', 'here']
@@ -326,83 +313,95 @@ def check_sentence(sentence):
         if w == 'dit':
         # Information Technology
             sentence[i] = 'c85'
+            condition_course = 'c85'
         if w == 'dcs':
         # Infocomm & Security
             sentence[i] = 'c80'
+            condition_course = 'c80'
         if w == 'cip':
         # Common ICT Program
             sentence[i] = 'c36'
+            condition_course = 'c36'
         if w == 'dbft':
         # Business & Financial Technology
             sentence[i] = 'c35'
+            condition_course = 'c80'
         if w == 'dba':
         # Business Intelligence & Analytics (New Professional Competency Model)
             sentence[i] = 'c43'
+            condition_course = 'c43'
         if w == 'dsf':
         # Cybersecurity & Digital Forensics
             sentence[i] = 'c54'
+            condition_course = 'c54'
         '''
-        setting condition_topic
+        setting condition_recommend
         '''
-        for s in [
-            # data
-            "data", "information", "datum", "data_point",
-            # coding
-            "cryptography", "coding", "secret_writing", "steganography",
-            "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
-            "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
-            "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
-            "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
-            # programming
-            "scheduling", "programming", "programing", "programming", "programing",
-            "computer_programming", "computer_programing", "program", "programme", "program", "programme",
-            # python
-            "python", "python", "Python"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_1'
+        if w == 'recommend' or w == 'recommended':
+            condition_recommend = 'recommended'
+        # '''
+        # setting condition_topic
+        # '''
+        # for s in [
+        #     # data
+        #     "data", "information", "datum", "data_point",
+        #     # coding
+        #     "cryptography", "coding", "secret_writing", "steganography",
+        #     "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
+        #     "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
+        #     "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
+        #     "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
+        #     # programming
+        #     "scheduling", "programming", "programing", "programming", "programing",
+        #     "computer_programming", "computer_programing", "program", "programme", "program", "programme",
+        #     # python
+        #     "python", "python", "Python"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_1'
+        #
+        # for s in [
+        #     # achievement
+        #     "accomplishment", "achievement"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_2'
+        #
+        # for s in [
+        #     # participation
+        #     "engagement", "participation", "involvement", "involution", "participation", "involvement"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_3'
+        #
+        # for s in [
+        #     # business
+        #     "business", "concern", "business_concern", "business_organization",
+        #     "business_organisation", "commercial_enterprise", "business_enterprise",
+        #     "business", "occupation", "business", "job", "line_of_work", "line",
+        #     "business", "business", "business", "business", "business_sector", "clientele",
+        #     "patronage", "business", "business", "stage_business", "byplay",
+        #     # certificates
+        #     "certificate", "certification", "credential", "credentials",
+        #     "security", "certificate", "certificate", "certificate",
+        #     # challenges
+        #     "challenge", "challenge", "challenge", "challenge",
+        #     "challenge", "challenge", "dispute", "gainsay", "challenge",
+        #     "challenge", "challenge", "take_exception",
+        #     # cca
+        #     "cca", "Co-curricular activities",
+        #     # values
+        #     "values", "value", "value", "value", "economic_value", "value",
+        #     "value", "time_value", "note_value", "value", "value", "prize", "value",
+        #     "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
+        #     "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
+        # ]:
+        #     if w == s:
+        #         sentence[i] = 'topic_4'
 
-        for s in [
-            # achievement
-            "accomplishment", "achievement"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_2'
 
-        for s in [
-            # participation
-            "engagement", "participation", "involvement", "involution", "participation", "involvement"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_3'
-
-        for s in [
-            # business
-            "business", "concern", "business_concern", "business_organization",
-            "business_organisation", "commercial_enterprise", "business_enterprise",
-            "business", "occupation", "business", "job", "line_of_work", "line",
-            "business", "business", "business", "business", "business_sector", "clientele",
-            "patronage", "business", "business", "stage_business", "byplay",
-            # certificates
-            "certificate", "certification", "credential", "credentials",
-            "security", "certificate", "certificate", "certificate",
-            # challenges
-            "challenge", "challenge", "challenge", "challenge",
-            "challenge", "challenge", "dispute", "gainsay", "challenge",
-            "challenge", "challenge", "take_exception",
-            # cca
-            # values
-            "values", "value", "value", "value", "economic_value", "value",
-            "value", "time_value", "note_value", "value", "value", "prize", "value",
-            "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
-            "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
-        ]:
-            if w == s:
-                sentence[i] = 'topic_4'
-
-
-    print("---return sentence:", sentence)
-    return sentence
+    print("---return sentence:", sentence, condition_course, condition_recommend)
+    return sentence, condition_course, condition_recommend
 
 
 # return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
@@ -459,14 +458,7 @@ def getResponse(ints, intents_json):
     return result
 
 
-# class ChatBotEae:
-#     def __init__(self, sentence):
-#         self.sentence = sentence
-#
-#     def convert_to_course_code(self, sentence):
-#         pass
-#
-#     def
+
 
 
 
