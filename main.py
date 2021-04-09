@@ -89,6 +89,8 @@ def chatbot_response():
         res_done, res, condition_course = read_csv(msg, res, condition_course, condition_recommend)
         if res_done == 'yes':
             res += "\n\nAnything else I can help you now?"
+    elif res == '':
+        res += "Sorry, i didnt catch that, could you repeat your demand?"
     else:
         res += "\n\nAnything else I can help you now?"
 
@@ -116,7 +118,6 @@ def add_to_choice(row, course, recommend, topic, choice3, choice2, choice1):
     # print("---enter add_to_choice: course recommend topic:", course, recommend, topic)
     global first_choice_count
 
-    row_to_be_added = ''
     row_to_be_added = row['UID'].upper() \
                       + " Choice: " + row['Choice']
     if course != 'nil':
@@ -125,7 +126,10 @@ def add_to_choice(row, course, recommend, topic, choice3, choice2, choice1):
         row_to_be_added += " Recommended: " + row['predict_recommend']
     if topic != 'no':
         row_to_be_added += " Topic: " + row['predictedTopic']
-    row_to_be_added += " Probability: " + row['predProb']
+    if row['predProb'] == '':
+        row_to_be_added += " Probability: nil"
+    else:
+        row_to_be_added += " Probability: " + row['predProb']
 
     if row['Choice'] == '3':
         choice3 += (" \n " + row_to_be_added + " ")
