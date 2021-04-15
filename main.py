@@ -88,9 +88,10 @@ def chatbot_response():
     if res == "topic_1" or res == "topic_2" or res == "topic_3" or res == "topic_4" or res == "search_student":
         res_done, res, condition_course = read_csv(msg, res, condition_course, condition_recommend)
         if res_done == 'yes':
+            res = f"There are {all_list_count}{gcondition_course} students\n " + res
             res += "\n\nAnything else I can help you now?"
     elif res == '':
-        res += "Sorry, i didnt catch that, could you repeat your demand?"
+        res += "Sorry, i didnt catch that, could you repeat?"
     else:
         res += "\n\nAnything else I can help you now?"
 
@@ -170,7 +171,6 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
         result_count = 0
         top_20 = 0
         first_choice_count = 0
-        result_complete = 'yes'
         choice1 = ""
         choice2 = ""
         choice3 = ""
@@ -271,6 +271,8 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
 
         if condition_course == 'nil':
             gcondition_course = ''
+
+
         # if too many results
         if top_20 > 20:
             first_choice_list = choice1
@@ -280,6 +282,11 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
             result = \
                 f"The list is too long ({result_count} {gcondition_course} students)," \
                 f" would you like to look for students who applied 1st choice?(Y/N)"
+        else:
+            first_choice_list = choice1
+            all_list_count = result_count
+            all_list = result
+            result_complete = 'yes'
 
         # print(f"---result: {result}")
         # print(f"---all_list : \n{all_list}")
@@ -309,6 +316,7 @@ def clean_up_sentence(sentence):
 def check_sentence(sentence):
     condition_course = 'nil'
     condition_recommend = 'not recommended'
+    condition_topic = 'no'
     print("---enter check_sentence(sentence)", sentence)
     for i, w in enumerate(sentence):
         # sentence = ['some', 'words', 'here']

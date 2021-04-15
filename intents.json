@@ -2,7 +2,7 @@
     "intents": [
         {
             "tag": "SIT",
-            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80", "apply for", "students for"],
+            "patterns": ["c85", "c35", "c54", "c43", "c36", "c80"],
             "responses": ["search_student"],
             "context": [""]
         },
