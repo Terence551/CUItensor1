@@ -176,9 +176,9 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
         choice3 = ""
         for row in csv_reader:
             # print(f"row in csv_reader: {row['UID']}, {row['Choice']}, {row['Course Code']}, {row['Recommended']}, {row['predict_recommend']}")
-            # line_count += 1
-            # if line_count == 1:
-            #     print(f'Column names are {", ".join(row)}')
+            line_count += 1
+            if line_count == 1:
+                print(f'Column names are {", ".join(row)}')
             # condition_topic check
             if condition_topic != 'no':
                 for topic in condition_topic:
