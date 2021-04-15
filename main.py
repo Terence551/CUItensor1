@@ -103,19 +103,23 @@ def chatbot_response():
 def set_condition_topic(condition_topic):
     if condition_topic == 'topic_1':
         condition_topic = ["5", "7", "9", "10", "14", "17", "19"]
+        condition_name = 'IT Skills'
     elif condition_topic == 'topic_2':
         condition_topic = ["2", "8", "12", "14", "16"]
+        condition_name = 'Achievements'
     elif condition_topic == 'topic_3':
         condition_topic = ["0", "1", "3", "4", "13"]
+        condition_name = 'Participation'
     elif condition_topic == 'topic_4':
         condition_topic = ["6", "11", "15", "18"]
+        condition_name = 'Others '
     elif condition_topic == 'search_student':
         condition_topic = 'no'
-    return condition_topic
+    return condition_topic, condition_name
 
 
 # adding to choice1,2,3
-def add_to_choice(row, course, recommend, topic, choice3, choice2, choice1):
+def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, choice1):
     # print("---enter add_to_choice: course recommend topic:", course, recommend, topic)
     global first_choice_count
 
@@ -126,7 +130,7 @@ def add_to_choice(row, course, recommend, topic, choice3, choice2, choice1):
     if recommend != 'not recommended':
         row_to_be_added += " Recommended: " + row['predict_recommend']
     if topic != 'no':
-        row_to_be_added += " Topic: " + row['predictedTopic']
+        row_to_be_added += " Topic: " + topic_name
     if row['predProb'] == '':
         row_to_be_added += " Probability: nil"
     else:
@@ -155,7 +159,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
     global gcondition_course
     condition_course = condition_course
     condition_recommend = condition_recommend
-    condition_topic = set_condition_topic(condition_topic)
+    condition_topic, condition_name = set_condition_topic(condition_topic)
 
     print(f'Condition Course: {condition_course}'
           f'\nCondition Recommended: {condition_recommend}'
@@ -197,6 +201,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                                                                                                       condition_course,
                                                                                                       condition_recommend,
                                                                                                       condition_topic,
+                                                                                                      condition_name,
                                                                                                       choice3,
                                                                                                       choice2, choice1)
                                         result_count += 1
@@ -205,6 +210,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                                     first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                                   condition_recommend,
                                                                                                   condition_topic,
+                                                                                                  condition_name,
                                                                                                   choice3,
                                                                                                   choice2, choice1)
                                     result_count += 1
@@ -216,6 +222,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                                     first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                                   condition_recommend,
                                                                                                   condition_topic,
+                                                                                                  condition_name,
                                                                                                   choice3,
                                                                                                   choice2, choice1)
                                     result_count += 1
@@ -223,7 +230,8 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                                 top_20 += 1
                                 first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                               condition_recommend,
-                                                                                              condition_topic, choice3,
+                                                                                              condition_topic,
+                                                                                              condition_name, choice3,
                                                                                               choice2, choice1)
                                 result_count += 1
             else:
@@ -238,6 +246,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                                                                                               condition_course,
                                                                                               condition_recommend,
                                                                                               condition_topic,
+                                                                                              condition_name,
                                                                                               choice3,
                                                                                               choice2, choice1)
                                 result_count += 1
@@ -246,6 +255,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                             first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                           condition_recommend,
                                                                                           condition_topic,
+                                                                                          condition_name,
                                                                                           choice3,
                                                                                           choice2, choice1)
                             result_count += 1
@@ -257,6 +267,7 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                             first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                           condition_recommend,
                                                                                           condition_topic,
+                                                                                          condition_name,
                                                                                           choice3,
                                                                                           choice2, choice1)
                             result_count += 1
@@ -264,7 +275,9 @@ def read_csv(sentence, condition_topic, condition_course, condition_recommend):
                         top_20 += 1
                         first_choice_count, choice3, choice2, choice1 = add_to_choice(row, condition_course,
                                                                                       condition_recommend,
-                                                                                      condition_topic, choice3,
+                                                                                      condition_topic,
+                                                                                      condition_name,
+                                                                                      choice3,
                                                                                       choice2, choice1)
                         result_count += 1
         result = choice1 + choice2 + choice3
