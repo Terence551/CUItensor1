@@ -2,64 +2,37 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}" />
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css.css')}}" /> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css.css')}}" />
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <script src="{{ url_for('static', filename='script.js')}}"></script>
 </head>
 
 <body>
     <div class="row">
         <div class="col-md-10 mr-auto ml-auto">
-    <h1>Dentrice AI ChatBot</h1>
-    <form>
-        <div id="chatbox">
-                <pre>
-                    <p class="botText">
-<span>Hi, I'm Dentrice, an EAE bot.
-You can start by asking:
-- Give me the recommended students for DIT
-- Give me the list of students who knows Python</span>
-                    </p>
-                </pre>
-        </div>
-        <div id="userInput" class="row">
-            <div class="col-md-10">
-                <input id="text" type="text" name="msg" placeholder="Message" class="form-control">
-                <button type="submit" id="send" class="btn btn-warning">Send</button>
+            <h1 id="test">Dentrice AI ChatBot</h1>
+            <form id="typingForm"></form>
+            <form id="clickingForm"></form>
+            <div id="chatbox">
+                <p class="botText">
+                    <span>Hi, I'm Dentrice, an EAE bot.<br>
+                        You can start by asking:<br>
+                        - Give me the recommended students for DIT<br>
+                        - Give me the list of students who knows Python</span>
+                </p>
+            </div>
+            <div id="userInput" class="row">
+                <div class="col-md-10">
+                    <input id="text2" type="hidden" name="msg2" form="clickingForm">
+                    <input id="text3" type="hidden" name="msg3" form="clickingForm">
+                    <input id="text" type="text" name="msg" placeholder="Message" class="form-control" form="typingForm">
+                    <button type="submit" id="send" class="btn btn-warning" form="typingForm">Send</button>
+                </div>
             </div>
         </div>
-    </form>
-</div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        $("form").on("submit", function(event) {
-            var rawText = $("#text").val();
-            var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
-            $("#text").val("");
-            $("#chatbox").append(userHtml);
-            document.getElementById("userInput").scrollIntoView({
-                block: "start",
-                behavior: "smooth",
-            });
-            $.ajax({
-                data: {
-                    msg: rawText,
-                },
-                type: "POST",
-                url: "/get",
-            }).done(function(data) {
-                var botHtml = '<pre><p class="botText"><span>' + data + "</span></p></pre>";
-                $("#chatbox").append($.parseHTML(botHtml));
-                document.getElementById("userInput").scrollIntoView({
-                    block: "start",
-                    behavior: "smooth",
-                });
-            });
-            event.preventDefault();
-        });
-    });
-</script>
 </body>
 
 </html>
