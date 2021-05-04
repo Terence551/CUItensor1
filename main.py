@@ -112,22 +112,14 @@ def chatbot_response():
 
     if res == "topic_1" or res == "topic_2" or res == "topic_3" or res == "topic_4" or res == "search_student":
         res_done, res = read_csv(res, condition_course, condition_recommend)
-        if res_done == 'yes':
-            res = "There are {0}{1}{2}{3}students<br>"\
-                      .format(str(all_list_count) + " ",
-                              str(gcondition_recommended[0]) + " ",
-                              str(gcondition_topic[0]) + " ",
-                              str(gcondition_course[0]) + " ")\
-                      .replace('none', '') + str(res)
-            res += "<br><br>Anything else I can help you now?"
-        elif gcontext == 'continue':
+        if gcontext == 'continue':
             if first_request[-1].lower() == 'yes':
                 print("---continue first_request(2)(choice)(yes)")
                 res = "There are {0}{1}{2}{3}students<br>" \
                           .format(str(first_choice_count) + " ",
                                   str(gcondition_recommended[0]) + " ",
                                   str(gcondition_topic[0]) + " ",
-                                  str(gcondition_course[0]) + " ")\
+                                  str(gcondition_course[0]) + " ") \
                           .replace('none ', '') + first_choice_list
             else:
                 # default no
@@ -143,6 +135,14 @@ def chatbot_response():
             gcondition_recommended = ["", 0]
             gcontext = ''
             first_request = []
+        elif res_done == 'yes':
+            res = "There are {0}{1}{2}{3}students<br>"\
+                      .format(str(all_list_count) + " ",
+                              str(gcondition_recommended[0]) + " ",
+                              str(gcondition_topic[0]) + " ",
+                              str(gcondition_course[0]) + " ")\
+                      .replace('none', '') + str(res)
+            res += "<br><br>Anything else I can help you now?"
     elif res == '':
         res += "Sorry, i didnt catch that, could you repeat?"
     else:
