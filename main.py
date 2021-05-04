@@ -50,30 +50,42 @@ def chatbot_response():
     global gcondition_recommended
     global gcontext
     print(f"first_request - {first_request}")
+    res = ''
+    condition_recommend = ''
+    condition_course = ''
+    msgtopic = ''
+    msgrec = ''
+    msgcou = ''
+    msgcho = ''
     # initialize request
     # if first_request:
     #     msg = first_request
     # else:
     #     msg = request.form["msg"]
     if request.form["msg"] == " ":
-        if request.form["continue"] == " ":
+        if request.form["continue"] == " " or first_request == "":
             print("Empty")
             msg = ''
+            gcontext = ''
         else:
             print("continue first_request(1)")
             msg = request.form["continue"]
+            msgtopic = request.form["topic"]
+            # msgrec = request.form["rec"]
+            # msgcou = request.form["cou"]
+            # msgcho = request.form["cho"]
+            gcontext = 'continue'
             print("msg - ", msg)
     else:
         print("start first_request(1)")
         gcondition_course = ["", 0]
         gcondition_topic = ["", 0]
         gcondition_recommended = ["", 0]
+        gcontext = 'start'
         first_request = []
         msg = request.form["msg"]
     # msg = request.form["msg"]
-    res = ''
-    condition_recommend = ''
-    condition_course = ''
+
     # if continue from previous conversation
     if first_request:
         print("continue first_request(2)")
@@ -81,39 +93,13 @@ def chatbot_response():
         first_request = ' '.join(first_request) + " " + msg
         # tokenize the pattern
         first_request, condition_course, condition_recommend = clean_up_sentence(first_request)
-        if gcontext != "choice":
-            if msg == "no":
-                msg = ""
-            if msg == "topic_1" or msg == "topic_2" or msg == "topic_3" or msg == "topic_4":
-                res = msg
-            else:
-                # predict and get response
-                ints = predict_class(first_request, model)
-                res = getResponse(ints, intents)
-            print(f"first_request - {first_request}, gcontext - {gcontext}, res - {res}")
-
+        if msgtopic == "topic_1" or msgtopic == "topic_2" or msgtopic == "topic_3" or msgtopic == "topic_4":
+            res = msgtopic
         else:
-            if msg.lower() == 'yes':
-                print("---continue first_request(2)(choice)(yes)")
-                res = "There are {0}{1}{2}{3}students<br>" \
-                          .format(str(first_choice_count) + " ",
-                                  str(gcondition_recommended[0]) + " ",
-                                  str(gcondition_topic[0]) + " ",
-                                  str(gcondition_course[0]) + " ")\
-                          .replace('none ', '') + first_choice_list
-            else:
-                print("---continue first_request(2)(choice)(no)")
-                res = "There are {0}{1}{2}{3}students<br>" \
-                          .format(str(all_list_count) + " ",
-                                  str(gcondition_recommended[0]) + " ",
-                                  str(gcondition_topic[0]) + " ",
-                                  str(gcondition_course[0]) + " ")\
-                          .replace('none', '') + all_list
-            gcondition_course = ["", 0]
-            gcondition_topic = ["", 0]
-            gcondition_recommended = ["", 0]
-            first_request = []
-
+            # predict and get response
+            ints = predict_class(first_request, model)
+            res = getResponse(ints, intents)
+        print(f"first_request - {first_request}, gcontext - {gcontext}, res - {res}")
     else:
         print("start first_request(2)")
         # tokenize the pattern
@@ -134,6 +120,29 @@ def chatbot_response():
                               str(gcondition_course[0]) + " ")\
                       .replace('none', '') + str(res)
             res += "<br><br>Anything else I can help you now?"
+        elif gcontext == 'continue':
+            if first_request[-1].lower() == 'yes':
+                print("---continue first_request(2)(choice)(yes)")
+                res = "There are {0}{1}{2}{3}students<br>" \
+                          .format(str(first_choice_count) + " ",
+                                  str(gcondition_recommended[0]) + " ",
+                                  str(gcondition_topic[0]) + " ",
+                                  str(gcondition_course[0]) + " ")\
+                          .replace('none ', '') + first_choice_list
+            else:
+                # default no
+                print("---continue first_request(2)(choice)(no)")
+                res = "There are {0}{1}{2}{3}students<br>" \
+                          .format(str(all_list_count) + " ",
+                                  str(gcondition_recommended[0]) + " ",
+                                  str(gcondition_topic[0]) + " ",
+                                  str(gcondition_course[0]) + " ") \
+                          .replace('none ', '') + all_list
+            gcondition_course = ["", 0]
+            gcondition_topic = ["", 0]
+            gcondition_recommended = ["", 0]
+            gcontext = ''
+            first_request = []
     elif res == '':
         res += "Sorry, i didnt catch that, could you repeat?"
     else:
@@ -373,6 +382,10 @@ def read_csv(condition_topic, condition_course, condition_recommend):
         else:
             gcondition_topic[0] = condition_name
 
+        print(f'gobal conditions '
+              f'--- gcondition_course   | {gcondition_course}'
+              f'--- gcondition_recommend| {gcondition_recommended}'
+              f'--- gcondition_topic    | {gcondition_topic}')
         # if too many results
         if top_20 > 20:
             # first_choice_list = choice1
@@ -381,47 +394,102 @@ def read_csv(condition_topic, condition_course, condition_recommend):
             all_list = tabulate(result, headers=start_sentence, tablefmt="pretty")
             all_list_count = result_count
             result_complete = 'no'
+
+            # radio--------------------
             result = \
-                "The list is too long ({0}{1}{2}{3}students)."\
-                    .format(str(result_count)+" ",
+                "The list is too long ({0}{1}{2}{3}students)." \
+                    .format(str(result_count) + " ",
                             str(gcondition_recommended[0]) + " ",
                             str(gcondition_topic[0]) + " ",
                             str(gcondition_course[0]) + " ").replace('none ', '')
             if gcondition_recommended == ['none', 0]:
                 gcondition_recommended[1] += 1
-                gcontext = "recommended"
-                result += "<br>This list can be further filtered by recommendation. (Click the button)" \
-                          "<br><input value=\"recommended\" onclick=\"myFunction(\'Recommended Students\', \'recommended\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>"\
-                          "<br><input value=\"no need\" onclick=\"myFunction(\'No Need To Filter\', \'no\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+                result += "<br>This list can be further filtered by recommendation. (Select the options below)" \
+                          "<br><input id=\"recommended\"   onclick=\"myFunction(\'Recommended Students\', \'recommended\', \'recommended\')\"   name=\"recommended\" type=\"radio\"/>" \
+                          "<label for=\"recommended\">RECOMMENDED</label>" \
+                          "<br><input id=\"norecommended\" onclick=\"myFunction(\'No Need To Filter Recommendation\', \'no\', \'recommended\')\"name=\"recommended\" type=\"radio\"/>" \
+                          "<label for=\"norecommended\">NO NEED</label>" \
                           "<br>"
-            elif gcondition_topic == ['none', 0]:
+            if gcondition_topic == ['none', 0]:
                 gcondition_topic[1] += 1
-                gcontext = "topic"
-                result += "<br>This list can be further filtered by topics. (Click the button)" \
-                          "<br><input onclick=\"myFunction(\'Students with IT Skills\', \'topic_1\')\" value=\"IT Skills - Data, Python, Coding, Programming\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students with Achievement\', \'topic_2\')\" value=\"Achievement\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students with  Participation\', \'topic_3\')\" value=\"Participation\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\')\" value=\"Others - Business, Certificate, CCA, Challenges\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+                result += "<br>This list can be further filtered by topics. (Select the options below)" \
+                          "<br><input onclick=\"myFunction(\'Students with IT Skills\', \'topic_1\', \'topic\')\"       name=\"topic\" id=\"topic_1\" type=\"radio\"/>" \
+                          "<label for=\"topic_1\">IT SKILLS - DATA, PYTHON, CODING, PROGRAMMING</label>" \
+                          "<br><input onclick=\"myFunction(\'Students with Achievement\', \'topic_2\', \'topic\')\"     name=\"topic\" id=\"topic_2\" type=\"radio\"/>" \
+                          "<label for=\"topic_2\">ACHIEVEMENT</label>" \
+                          "<br><input onclick=\"myFunction(\'Students with  Participation\', \'topic_3\', \'topic\')\"  name=\"topic\" id=\"topic_3\" type=\"radio\"/>" \
+                          "<label for=\"topic_3\">PARTICIPATION</label>" \
+                          "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\', \'topic\')\"                name=\"topic\" id=\"topic_4\" type=\"radio\"/>" \
+                          "<label for=\"topic_4\">OTHERS - BUSINESS, CERTIFICATE, CCA, CHALLENGES</label>" \
+                          "<br><input onclick=\"myFunction(\'No Need To Filter Topic\', \'no\', \'topic\')\"            name=\"topic\" id=\"notopic\" type=\"radio\"/>" \
+                          "<label for=\"notopic\">NO NEED</label>" \
                           "<br>"
-            elif gcondition_course == ['none', 0]:
+            if gcondition_course == ['none', 0]:
                 gcondition_course[1] += 1
-                gcontext = "course"
-                result += "<br>This list can be further filtered by course. (Click the button)" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business & Financial Technology\', \'dbft\')\" value=\"Business & Financial Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Common ICT Program\', \'cip\')\" value=\"Common ICT Program\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business Intelligence & Analytics\', \'dba\')\" value=\"Business Intelligence & Analytics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Cybersecurity & Digital Forensics\', \'dsf\')\" value=\"Cybersecurity & Digital Forensics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Infocomm & Security\', \'dcs\')\" value=\"Infocomm & Security\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\')\" value=\"Information Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+                result += "<br>This list can be further filtered by course. (Select the options below)" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business & Financial Technology\', \'dbft\', \'course\')\"      name=\"course\" id=\"dbft\"     type=\"radio\"/>" \
+                          "<label for=\"dbft\">Business & Financial Technology</label>" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Common ICT Program\', \'cip\', \'course\')\"                    name=\"course\" id=\"cip\"      type=\"radio\"/>" \
+                          "<label for=\"cip\">Common ICT Program</label>" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business Intelligence & Analytics\', \'dba\', \'course\')\"     name=\"course\" id=\"dba\"      type=\"radio\"/>" \
+                          "<label for=\"dba\">Business Intelligence & Analytics</label>" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Cybersecurity & Digital Forensics\', \'dsf\', \'course\')\"     name=\"course\" id=\"dsf\"      type=\"radio\"/>" \
+                          "<label for=\"dsf\">Cybersecurity & Digital Forensics</label>" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Infocomm & Security\', \'dcs\', \'course\')\"                   name=\"course\" id=\"dcs\"      type=\"radio\"/>" \
+                          "<label for=\"dcs\">Infocomm & Security</label>" \
+                          "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\', \'course\')\"                name=\"course\" id=\"dit\"      type=\"radio\"/>" \
+                          "<label for=\"dit\">Information Technology</label>" \
+                          "<br><input onclick=\"myFunction(\'No Need To Filter Course\', \'no\', \'course\')\"                                      name=\"course\" id=\"nocourse\" type=\"radio\"/>" \
+                          "<label for=\"nocourse\">no need</label>" \
                           "<br>"
-            else:
-                gcontext = "choice"
-                result += "<br>Would you like to look for students who applied 1st choice? (Click the button)" \
-                          "<br><input onclick=\"myFunction(\'Yes\', \'yes\')\" value=\"yes\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br><input onclick=\"myFunction(\'No\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-                          "<br>"
+            result += "<br>Would you like to look for students who applied 1st choice? (Select the options below)" \
+                      "<br><input onclick=\"myFunction(\'Yes\', \'yes\', \'choice\')\"  id=\"yeschoice\" name=\"choice\" type=\"radio\"/>" \
+                      "<label for=\"yeschoice\">YES</label>" \
+                      "<br><input onclick=\"myFunction(\'No\', \'no\', \'choice\')\"    id=\"nochoice\"  name=\"choice\" type=\"radio\"/>" \
+                      "<label for=\"nochoice\">NO NEED</label>" \
+                      "<br><input id=\"butclick\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\" value=\"FILTER\"/><br>"
+            # button----------------------
+            # result = \
+            #     "The list is too long ({0}{1}{2}{3}students)."\
+            #         .format(str(result_count)+" ",
+            #                 str(gcondition_recommended[0]) + " ",
+            #                 str(gcondition_topic[0]) + " ",
+            #                 str(gcondition_course[0]) + " ").replace('none ', '')
+            # if gcondition_recommended == ['none', 0]:
+            #     gcondition_recommended[1] += 1
+            #     gcontext = "recommended"
+            #     result += "<br>This list can be further filtered by recommendation. (Click the button)" \
+            #               "<br><input value=\"recommended\" onclick=\"myFunction(\'Recommended Students\', \'recommended\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>"\
+            #               "<br><input value=\"no need\" onclick=\"myFunction(\'No Need To Filter\', \'no\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br>"
+            # elif gcondition_topic == ['none', 0]:
+            #     gcondition_topic[1] += 1
+            #     gcontext = "topic"
+            #     result += "<br>This list can be further filtered by topics. (Click the button)" \
+            #               "<br><input onclick=\"myFunction(\'Students with IT Skills\', \'topic_1\')\" value=\"IT Skills - Data, Python, Coding, Programming\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students with Achievement\', \'topic_2\')\" value=\"Achievement\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students with  Participation\', \'topic_3\')\" value=\"Participation\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\')\" value=\"Others - Business, Certificate, CCA, Challenges\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br>"
+            # elif gcondition_course == ['none', 0]:
+            #     gcondition_course[1] += 1
+            #     gcontext = "course"
+            #     result += "<br>This list can be further filtered by course. (Click the button)" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Business & Financial Technology\', \'dbft\')\" value=\"Business & Financial Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Common ICT Program\', \'cip\')\" value=\"Common ICT Program\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Business Intelligence & Analytics\', \'dba\')\" value=\"Business Intelligence & Analytics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Cybersecurity & Digital Forensics\', \'dsf\')\" value=\"Cybersecurity & Digital Forensics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Infocomm & Security\', \'dcs\')\" value=\"Infocomm & Security\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\')\" value=\"Information Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br>"
+            # else:
+            #     gcontext = "choice"
+            #     result += "<br>Would you like to look for students who applied 1st choice? (Click the button)" \
+            #               "<br><input onclick=\"myFunction(\'Yes\', \'yes\')\" value=\"yes\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br><input onclick=\"myFunction(\'No\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
+            #               "<br>"
         else:
             all_list_count = result_count
             result = tabulate(result, headers=start_sentence, tablefmt="pretty")

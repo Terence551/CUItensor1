@@ -13,6 +13,10 @@ $(document).ready(function(){
             data: {
                 msg: rawText,
                 'continue': " ",
+                'topic': " ",
+//                'rec': " ",
+//                'cou': " ",
+//                'cho': " ",
             },
             type: "POST",
             url: "/get",
@@ -30,11 +34,19 @@ $(document).ready(function(){
     $("#clickingForm").on("submit", function(event) {
         try{
             console.log("entering clickingForm");
-            var rawText = document.getElementById('text2').textContent;
-            var rawValue = document.getElementById('text3').textContent;
+//            assigning var
+            var recT = document.getElementById('textsrec').textContent + "<br>";
+            var couT = document.getElementById('textscou').textContent + "<br>";
+            var topT = document.getElementById('textstop').textContent + "<br>";
+            var choT = document.getElementById('textscho').textContent + "<br>";
+            var recV = document.getElementById('textvrec').textContent;
+            var couV = document.getElementById('textvcou').textContent;
+            var topV = document.getElementById('textvtop').textContent;
+            var choV = document.getElementById('textvcho').textContent;
+            var rawText = recT + topT + couT + choT;
+            var rawValue = recV + " " + topV + " " + couV + " " + choV;
+            console.log("rawV: " + rawValue);
             var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
-            $("#text2").val("");
-            $("#text3").val("");
             $("#chatbox").append(userHtml);
             document.getElementById("userInput").scrollIntoView({
                 block: "start",
@@ -44,6 +56,10 @@ $(document).ready(function(){
                 data: {
                     msg: " ",
                     'continue': rawValue,
+                    'topic': topV,
+//                    'rec': recV,
+//                    'cou': couV,
+//                    'cho': choV,
                 },
                 type: "POST",
                 url: "/get",
@@ -54,6 +70,32 @@ $(document).ready(function(){
                     block: "start",
                     behavior: "smooth",
                 });
+//            clearing content
+            document.getElementById("yeschoice").remove();
+            document.getElementById("nochoice").remove();
+            document.getElementById("butclick").remove();
+            document.getElementById("recommended").remove();
+            document.getElementById("norecommended").remove();
+            document.getElementById("topic_1").remove();
+            document.getElementById("topic_2").remove();
+            document.getElementById("topic_3").remove();
+            document.getElementById("topic_4").remove();
+            document.getElementById("notopic").remove();
+            document.getElementById("dbft").remove();
+            document.getElementById("cip").remove();
+            document.getElementById("dba").remove();
+            document.getElementById("dsf").remove();
+            document.getElementById("dcs").remove();
+            document.getElementById("dit").remove();
+            document.getElementById("nocourse").remove();
+            $("#textsrec").val("");
+            $("#textvrec").val("");
+            $("#textscou").val("");
+            $("#textvcou").val("");
+            $("#textstop").val("");
+            $("#textvtop").val("");
+            $("#textscho").val("");
+            $("#textvcho").val("");
             });
         }
         catch(error){
@@ -65,9 +107,23 @@ $(document).ready(function(){
 
 });
 
-function myFunction(msg, value){
-    console.log("msg is " + msg);
-    document.getElementById("text2").innerHTML = msg;
-    document.getElementById("text3").innerHTML = value;
+function myFunction(msg, value, context){
+    console.log("context: " + context + "| msg is " + msg);
+    if (context == "recommended"){
+        document.getElementById("textsrec").innerHTML = msg;
+        document.getElementById("textvrec").innerHTML = value;
+    }
+    else if (context == "topic"){
+        document.getElementById("textstop").innerHTML = msg;
+        document.getElementById("textvtop").innerHTML = value;
+    }
+    else if (context == "course"){
+        document.getElementById("textscou").innerHTML = msg;
+        document.getElementById("textvcou").innerHTML = value;
+    }
+    else if (context == "choice"){
+        document.getElementById("textscho").innerHTML = msg;
+        document.getElementById("textvcho").innerHTML = value;
+    }
 
 }
