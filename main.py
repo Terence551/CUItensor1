@@ -30,8 +30,12 @@ gcondition_course = ["", 0]
 gcondition_topic = ["", 0]
 gcondition_recommended = ["", 0]
 gcontext = ""
-compare_one = []
-compare_two = []
+compare_one = ''
+compare_two = ''
+compare_thr = ''
+compare_fou = ''
+compare_fiv = ''
+compare_six = ''
 
 app = Flask(__name__)
 # run_with_ngrok(app)
@@ -54,16 +58,13 @@ def chatbot_response():
     condition_recommend = ''
     condition_course = ''
     msgtopic = ''
-    msgrec = ''
-    msgcou = ''
-    msgcho = ''
     # initialize request
     # if first_request:
     #     msg = first_request
     # else:
     #     msg = request.form["msg"]
     if request.form["msg"] == " ":
-        if request.form["continue"] == " " or first_request == "":
+        if request.form["continue"] == " " and first_request == "":
             print("Empty")
             msg = ''
             gcontext = ''
@@ -71,9 +72,6 @@ def chatbot_response():
             print("continue first_request(1)")
             msg = request.form["continue"]
             msgtopic = request.form["topic"]
-            # msgrec = request.form["rec"]
-            # msgcou = request.form["cou"]
-            # msgcho = request.form["cho"]
             gcontext = 'continue'
             print("msg - ", msg)
     else:
@@ -130,6 +128,7 @@ def chatbot_response():
                                   str(gcondition_topic[0]) + " ",
                                   str(gcondition_course[0]) + " ") \
                           .replace('none ', '') + all_list
+            res += "<br><br>Anything else I can help you now?"
             gcondition_course = ["", 0]
             gcondition_topic = ["", 0]
             gcondition_recommended = ["", 0]
@@ -407,7 +406,7 @@ def read_csv(condition_topic, condition_course, condition_recommend):
                 result += "<br>This list can be further filtered by recommendation. (Select the options below)" \
                           "<br><input id=\"recommended\"   onclick=\"myFunction(\'Recommended Students\', \'recommended\', \'recommended\')\"   name=\"recommended\" type=\"radio\"/>" \
                           "<label for=\"recommended\">RECOMMENDED</label>" \
-                          "<br><input id=\"norecommended\" onclick=\"myFunction(\'No Need To Filter Recommendation\', \'no\', \'recommended\')\"name=\"recommended\" type=\"radio\"/>" \
+                          "<br><input id=\"norecommended\" onclick=\"myFunction(\'No Need To Filter Recommendation\', \'no\', \'recommended\')\"name=\"recommended\" type=\"radio\" checked/>" \
                           "<label for=\"norecommended\">NO NEED</label>" \
                           "<br>"
             if gcondition_topic == ['none', 0]:
@@ -421,7 +420,7 @@ def read_csv(condition_topic, condition_course, condition_recommend):
                           "<label for=\"topic_3\">PARTICIPATION</label>" \
                           "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\', \'topic\')\"                name=\"topic\" id=\"topic_4\" type=\"radio\"/>" \
                           "<label for=\"topic_4\">OTHERS - BUSINESS, CERTIFICATE, CCA, CHALLENGES</label>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter Topic\', \'no\', \'topic\')\"            name=\"topic\" id=\"notopic\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'No Need To Filter Topic\', \'no\', \'topic\')\"            name=\"topic\" id=\"notopic\" type=\"radio\" checked/>" \
                           "<label for=\"notopic\">NO NEED</label>" \
                           "<br>"
             if gcondition_course == ['none', 0]:
@@ -439,15 +438,20 @@ def read_csv(condition_topic, condition_course, condition_recommend):
                           "<label for=\"dcs\">Infocomm & Security</label>" \
                           "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\', \'course\')\"                name=\"course\" id=\"dit\"      type=\"radio\"/>" \
                           "<label for=\"dit\">Information Technology</label>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter Course\', \'no\', \'course\')\"                                      name=\"course\" id=\"nocourse\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'No Need To Filter Course\', \'no\', \'course\')\"                                      name=\"course\" id=\"nocourse\" type=\"radio\" checked/>" \
                           "<label for=\"nocourse\">no need</label>" \
                           "<br>"
+            else:
+                result += "<br>You can compare the result with another course. (Select the options below)" \
+                          ""
+
             result += "<br>Would you like to look for students who applied 1st choice? (Select the options below)" \
                       "<br><input onclick=\"myFunction(\'Yes\', \'yes\', \'choice\')\"  id=\"yeschoice\" name=\"choice\" type=\"radio\"/>" \
                       "<label for=\"yeschoice\">YES</label>" \
-                      "<br><input onclick=\"myFunction(\'No\', \'no\', \'choice\')\"    id=\"nochoice\"  name=\"choice\" type=\"radio\"/>" \
+                      "<br><input onclick=\"myFunction(\'No\', \'no\', \'choice\')\"    id=\"nochoice\"  name=\"choice\" type=\"radio\" checked/>" \
                       "<label for=\"nochoice\">NO NEED</label>" \
                       "<br><input id=\"butclick\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\" value=\"FILTER\"/><br>"
+            result += f"<br><input id=\"firstrequest\" type=\"text\" value=\"{' '.join(first_request)}\" hidden>"
             # button----------------------
             # result = \
             #     "The list is too long ({0}{1}{2}{3}students)."\
