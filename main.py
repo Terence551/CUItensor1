@@ -107,10 +107,10 @@ def chatbot_response():
         print(f"first_request - {first_request}, gcontext - {gcontext}, res - {res}")
     else:
         print("start first_request(2)")
-        # tokenize the pattern
-        msg, condition_course, condition_recommend, condition_mentioned = clean_up_sentence(msg)
         # save pattern to global for next use (if needed)
         first_request = msg
+        # tokenize the pattern
+        msg, condition_course, condition_recommend, condition_mentioned = clean_up_sentence(msg)
         # predict and get response
         ints = predict_class(msg, model)
         res = getResponse(ints, intents)
