@@ -654,48 +654,6 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
                       "<label for=\"nochoice\">NO NEED</label>" \
                       "<br><input id=\"butclick\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\" value=\"FILTER\"/><br>"
             result += f"<input id=\"firstrequest\" type=\"text\" value=\"{' '.join(first_request)}\" hidden>"
-            # button----------------------
-            # result = \
-            #     "The list is too long ({0}{1}{2}{3}students)."\
-            #         .format(str(result_count)+" ",
-            #                 str(gcondition_recommended[0]) + " ",
-            #                 str(gcondition_topic[0]) + " ",
-            #                 str(gcondition_course[0]) + " ").replace('none ', '')
-            # if gcondition_recommended == ['none', 0]:
-            #     gcondition_recommended[1] += 1
-            #     gcontext = "recommended"
-            #     result += "<br>This list can be further filtered by recommendation. (Click the button)" \
-            #               "<br><input value=\"recommended\" onclick=\"myFunction(\'Recommended Students\', \'recommended\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>"\
-            #               "<br><input value=\"no need\" onclick=\"myFunction(\'No Need To Filter\', \'no\')\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br>"
-            # elif gcondition_topic == ['none', 0]:
-            #     gcondition_topic[1] += 1
-            #     gcontext = "topic"
-            #     result += "<br>This list can be further filtered by topics. (Click the button)" \
-            #               "<br><input onclick=\"myFunction(\'Students with IT Skills\', \'topic_1\')\" value=\"IT Skills - Data, Python, Coding, Programming\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students with Achievement\', \'topic_2\')\" value=\"Achievement\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students with  Participation\', \'topic_3\')\" value=\"Participation\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\')\" value=\"Others - Business, Certificate, CCA, Challenges\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br>"
-            # elif gcondition_course == ['none', 0]:
-            #     gcondition_course[1] += 1
-            #     gcontext = "course"
-            #     result += "<br>This list can be further filtered by course. (Click the button)" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Business & Financial Technology\', \'dbft\')\" value=\"Business & Financial Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Common ICT Program\', \'cip\')\" value=\"Common ICT Program\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Business Intelligence & Analytics\', \'dba\')\" value=\"Business Intelligence & Analytics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Cybersecurity & Digital Forensics\', \'dsf\')\" value=\"Cybersecurity & Digital Forensics\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Infocomm & Security\', \'dcs\')\" value=\"Infocomm & Security\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\')\" value=\"Information Technology\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'No Need To Filter\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br>"
-            # else:
-            #     gcontext = "choice"
-            #     result += "<br>Would you like to look for students who applied 1st choice? (Click the button)" \
-            #               "<br><input onclick=\"myFunction(\'Yes\', \'yes\')\" value=\"yes\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br><input onclick=\"myFunction(\'No\', \'no\')\" value=\"no need\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\"/>" \
-            #               "<br>"
         else:
             all_list_count = result_count
             result = tabulate(result, headers=start_sentence, tablefmt="grid", stralign="left")
@@ -770,65 +728,6 @@ def check_sentence(sentence):
             condition_mentioned = ' '+sentence[i+1]
             sentence[i] = 'wrote'
             sentence[i+1] = ''
-        # '''
-        # setting condition_topic
-        # '''
-        # for s in [
-        #     # data
-        #     "data", "information", "datum", "data_point",
-        #     # coding
-        #     "cryptography", "coding", "secret_writing", "steganography",
-        #     "code", "code", "encipher", "cipher", "cypher", "encrypt", "inscribe",
-        #     "write_in_code", "gull", "dupe", "slang", "befool", "cod", "fool",
-        #     "put_on", "take_in", "put_one_over", "put_one_across", "tease", "razz",
-        #     "rag", "cod", "tantalize", "tantalise", "bait", "taunt", "twit", "rally", "ride",
-        #     # programming
-        #     "scheduling", "programming", "programing", "programming", "programing",
-        #     "computer_programming", "computer_programing", "program", "programme", "program", "programme",
-        #     # python
-        #     "python", "python", "Python"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_1'
-        #
-        # for s in [
-        #     # achievement
-        #     "accomplishment", "achievement"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_2'
-        #
-        # for s in [
-        #     # participation
-        #     "engagement", "participation", "involvement", "involution", "participation", "involvement"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_3'
-        #
-        # for s in [
-        #     # business
-        #     "business", "concern", "business_concern", "business_organization",
-        #     "business_organisation", "commercial_enterprise", "business_enterprise",
-        #     "business", "occupation", "business", "job", "line_of_work", "line",
-        #     "business", "business", "business", "business", "business_sector", "clientele",
-        #     "patronage", "business", "business", "stage_business", "byplay",
-        #     # certificates
-        #     "certificate", "certification", "credential", "credentials",
-        #     "security", "certificate", "certificate", "certificate",
-        #     # challenges
-        #     "challenge", "challenge", "challenge", "challenge",
-        #     "challenge", "challenge", "dispute", "gainsay", "challenge",
-        #     "challenge", "challenge", "take_exception",
-        #     # cca
-        #     "cca", "Co-curricular activities",
-        #     # values
-        #     "values", "value", "value", "value", "economic_value", "value",
-        #     "value", "time_value", "note_value", "value", "value", "prize", "value",
-        #     "treasure", "appreciate", "respect", "esteem", "value", "prize", "prise",
-        #     "measure", "evaluate", "valuate", "assess", "appraise", "value", "rate", "value"
-        # ]:
-        #     if w == s:
-        #         sentence[i] = 'topic_4'
 
     print("---return sentence:", sentence, condition_course, condition_recommend, condition_mentioned)
     return sentence, condition_course, condition_recommend, condition_mentioned
