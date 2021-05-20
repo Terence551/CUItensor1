@@ -69,7 +69,7 @@ $(document).ready(function(){
                 console.log("error: "+err);
             };
             var botHtml = '<pre><p class="botText"><span>' + data + "</span></p></pre>";
-            $("#chatbox").append($.parseHTML(botHtml));
+            $("#chatbox").append($.parseHTML(bo tHtml));
             document.getElementById("userInput").scrollIntoView({
                 block: "start",
                 behavior: "smooth",

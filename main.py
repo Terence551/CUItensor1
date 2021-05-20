@@ -74,10 +74,10 @@ def chatbot_response():
             gcontext = ''
         else:
             print("continue first_request(1)")
-            msg = request.form["continue"]
+            first_request = request.form["continue"]
             msgtopic = request.form["topic"]
             gcontext = 'continue'
-            print("msg - ", msg)
+            print("msg - ", first_request)
     else:
         print("start first_request(1)")
         gcondition_course = ["", 0]
@@ -91,8 +91,6 @@ def chatbot_response():
     # if continue from previous conversation
     if first_request:
         print("continue first_request(2)")
-        # save pattern to global for next use (if needed)
-        first_request = msg
         # tokenize the pattern
         first_request, condition_course, condition_recommend, condition_mentioned = clean_up_sentence(first_request)
         if gcondition_mentioned != 'none':
