@@ -162,7 +162,7 @@ def chatbot_response():
     else:
         res += "<br><br>Anything else I can help you now?"
 
-    print("---return:", res)
+    # print("---return:", res)
     return res
 
 # get details
@@ -267,7 +267,10 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
           f'\nCondition Recommended: {condition_recommend}'
           f'\nCondition Topic: {condition_name} | {condition_topic}'
           f'\nCondition Mentioned: {condition_mentioned}')
-
+    choice1 = []
+    choice2 = []
+    choice3 = []
+    start_sentence = []
     # reading result from file
     # with open('finalfinal.csv', mode='r') as csv_file:
     #     csv_reader = sorted(csv_file, key=lambda row: row[7])
@@ -278,10 +281,6 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
         result_count = 0
         top_20 = 0
         first_choice_count = 0
-        choice1 = []
-        choice2 = []
-        choice3 = []
-        start_sentence = []
         for row in csv_reader:
             line_count += 1
             if line_count == 1:
