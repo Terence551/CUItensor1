@@ -6,6 +6,7 @@
 <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="{{ url_for('static', filename='script.js')}}"></script>
+
 </head>
 
 <body>
@@ -19,19 +20,27 @@
                     <span>Hi, I'm Dentrice, an EAE bot.<br>
                         You can start by asking:<br>
                         - Give me the recommended students for DIT<br>
-                        - Give me the list of students who knows Python</span>
+                        - Give me the list of students who knows Python<br>
+                        - Give me the students who mentioned Python (a word after mentioned)</span>
                 </p>
+            </div>
+            <div id="loader" class="botText" hidden></div>
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p id="model-text">Some text in the Modal..</p>
+                </div>
+
             </div>
             <div id="userInput" class="row">
                 <div class="col-md-10">
-                    <input id="textsrec" type="hidden" form="clickingForm">
                     <input id="textvrec" type="hidden" form="clickingForm">
-                    <input id="textstop" type="hidden" form="clickingForm">
                     <input id="textvtop" type="hidden" form="clickingForm">
-                    <input id="textscou" type="hidden" form="clickingForm">
                     <input id="textvcou" type="hidden" form="clickingForm">
-                    <input id="textscho" type="hidden" form="clickingForm">
                     <input id="textvcho" type="hidden" form="clickingForm">
+                    <input id="textvcom" type="hidden" form="clickingForm">
                     <input id="text" type="text" name="msg" placeholder="Message" class="form-control" form="typingForm">
                     <button type="submit" id="send" class="btn btn-warning" form="typingForm">Send</button>
                 </div>

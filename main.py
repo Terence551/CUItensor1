@@ -1,5 +1,6 @@
 # libraries
 import random
+import string
 import numpy as np
 import pickle
 import json
@@ -29,6 +30,7 @@ all_list_count = ""
 gcondition_course = ["", 0]
 gcondition_topic = ["", 0]
 gcondition_recommended = ["", 0]
+gcondition_mentioned = ""
 gcontext = ""
 compare_one = ''
 compare_two = ''
@@ -39,6 +41,7 @@ compare_six = ''
 
 app = Flask(__name__)
 # run_with_ngrok(app)
+
 
 @app.route("/")
 def home():
@@ -52,6 +55,7 @@ def chatbot_response():
     global gcondition_course
     global gcondition_topic
     global gcondition_recommended
+    global gcondition_mentioned
     global gcontext
     print(f"first_request - {first_request}")
     res = ''
@@ -88,9 +92,12 @@ def chatbot_response():
     if first_request:
         print("continue first_request(2)")
         # save pattern to global for next use (if needed)
-        first_request = ' '.join(first_request) + " " + msg
+        first_request = msg
         # tokenize the pattern
-        first_request, condition_course, condition_recommend = clean_up_sentence(first_request)
+        first_request, condition_course, condition_recommend, condition_mentioned = clean_up_sentence(first_request)
+        if gcondition_mentioned != 'none':
+            #  remove (who mentioned )
+            condition_mentioned = gcondition_mentioned[14:]
         if msgtopic == "topic_1" or msgtopic == "topic_2" or msgtopic == "topic_3" or msgtopic == "topic_4":
             res = msgtopic
         else:
@@ -101,32 +108,39 @@ def chatbot_response():
     else:
         print("start first_request(2)")
         # tokenize the pattern
-        msg, condition_course, condition_recommend = clean_up_sentence(msg)
+        msg, condition_course, condition_recommend, condition_mentioned = clean_up_sentence(msg)
         # save pattern to global for next use (if needed)
         first_request = msg
         # predict and get response
         ints = predict_class(msg, model)
         res = getResponse(ints, intents)
 
-    if res == "topic_1" or res == "topic_2" or res == "topic_3" or res == "topic_4" or res == "search_student":
-        res_done, res = read_csv(res, condition_course, condition_recommend)
+    if res == "topic_1" \
+            or res == "topic_2" \
+            or res == "topic_3" \
+            or res == "topic_4" \
+            or res == "search_student" \
+            or condition_mentioned != 'no':
+        res_done, res = read_csv(res, condition_course, condition_recommend, condition_mentioned)
         if gcontext == 'continue':
             if first_request[-1].lower() == 'yes':
                 print("---continue first_request(2)(choice)(yes)")
-                res = "There are {0}{1}{2}{3}students<br>" \
+                res = "There are {0}{1}{2}{3}students applied 1st choice {4}<br>" \
                           .format(str(first_choice_count) + " ",
                                   str(gcondition_recommended[0]) + " ",
                                   str(gcondition_topic[0]) + " ",
-                                  str(gcondition_course[0]) + " ") \
+                                  str(gcondition_course[0]) + " ",
+                                  str(gcondition_mentioned) + " ") \
                           .replace('none ', '') + first_choice_list
             else:
                 # default no
                 print("---continue first_request(2)(choice)(no)")
-                res = "There are {0}{1}{2}{3}students<br>" \
+                res = "There are {0}{1}{2}{3}students{4}<br>" \
                           .format(str(all_list_count) + " ",
                                   str(gcondition_recommended[0]) + " ",
                                   str(gcondition_topic[0]) + " ",
-                                  str(gcondition_course[0]) + " ") \
+                                  str(gcondition_course[0]) + " ",
+                                  str(gcondition_mentioned) + " ") \
                           .replace('none ', '') + all_list
             res += "<br><br>Anything else I can help you now?"
             gcondition_course = ["", 0]
@@ -135,11 +149,12 @@ def chatbot_response():
             gcontext = ''
             first_request = []
         elif res_done == 'yes':
-            res = "There are {0}{1}{2}{3}students<br>"\
+            res = "There are {0}{1}{2}{3}students{4}<br>"\
                       .format(str(all_list_count) + " ",
                               str(gcondition_recommended[0]) + " ",
                               str(gcondition_topic[0]) + " ",
-                              str(gcondition_course[0]) + " ")\
+                              str(gcondition_course[0]) + " ",
+                              str(gcondition_mentioned) + " ") \
                       .replace('none', '') + str(res)
             res += "<br><br>Anything else I can help you now?"
     elif res == '':
@@ -212,12 +227,12 @@ def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, c
         topic, topic_name = set_condition_topic(row['predictedTopic'])
         row_to_be_added += [topic_name]
         start_sentence += ["Topic"]
-    if row['predProb'] == '':
+    if row['Final_Writeup'] == '':
         row_to_be_added += ["nil"]
-        start_sentence += ["Probability"]
+        start_sentence += ["Writeup"]
     else:
-        row_to_be_added += [row['predProb']]
-        start_sentence += ["Probability"]
+        row_to_be_added += [row['Final_Writeup']]
+        start_sentence += ["Writeup"]
 
     if row['Choice'] == '3':
         choice3 += [row_to_be_added]
@@ -233,8 +248,9 @@ def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, c
 
 
 # reading csv file
-def read_csv(condition_topic, condition_course, condition_recommend):
-    print("---enters read_csv(topic, course, recommend)", condition_topic, condition_course, condition_recommend)
+def read_csv(condition_topic, condition_course, condition_recommend, condition_mentioned):
+    print("---enters read_csv(topic, course, recommend, mentioned)",
+          condition_topic, condition_course, condition_recommend, condition_mentioned)
     global first_choice_list
     global first_choice_count
     global all_list
@@ -242,13 +258,15 @@ def read_csv(condition_topic, condition_course, condition_recommend):
     global gcondition_course
     global gcondition_recommended
     global gcondition_topic
+    global gcondition_mentioned
     global gcontext
 
     condition_topic, condition_name = set_condition_topic(condition_topic)
 
     print(f'Condition Course: {condition_course}'
           f'\nCondition Recommended: {condition_recommend}'
-          f'\nCondition Topic: {condition_name} | {condition_topic}')
+          f'\nCondition Topic: {condition_name} | {condition_topic}'
+          f'\nCondition Mentioned: {condition_mentioned}')
 
     # reading result from file
     # with open('finalfinal.csv', mode='r') as csv_file:
@@ -268,104 +286,265 @@ def read_csv(condition_topic, condition_course, condition_recommend):
             line_count += 1
             if line_count == 1:
                 print(f'Column names are {", ".join(row)}')
-            # condition_topic check
-            if condition_topic != 'no':
-                for topic in condition_topic:
-                    # row[6]
-                    if topic == row['predictedTopic']:
+            # condition_mentioned check
+            if condition_mentioned != 'no':
+                if condition_mentioned.lower() in row['Final_Writeup'].lower():
+                    # print("mentioned is in Final_Writeup - condition_mentioned, row", condition_mentioned, row)
+                    # condition_topic check
+                    if condition_topic != 'no':
+                        for topic in condition_topic:
+                            # row[6]
+                            if topic == row['predictedTopic']:
+                                # condition_course check
+                                if condition_course != 'nil':
+                                    # row[3]
+                                    if condition_course.upper() == row['Course Code'].upper():
+                                        # condition_recommend check
+                                        if condition_recommend == 'recommended':
+                                            # row[5]
+                                            if row['predict_recommend'] == '1':
+                                                top_20 += 1
+                                                first_choice_count, choice3, choice2, choice1, start_sentence \
+                                                    = add_to_choice(row,
+                                                                    condition_course,
+                                                                    condition_recommend,
+                                                                    condition_topic,
+                                                                    condition_name,
+                                                                    choice3,
+                                                                    choice2,
+                                                                    choice1)
+                                                result_count += 1
+                                        elif condition_recommend == "not recommended":
+                                            top_20 += 1
+                                            first_choice_count, choice3, choice2, choice1, start_sentence \
+                                                = add_to_choice(row,
+                                                                condition_course,
+                                                                condition_recommend,
+                                                                condition_topic,
+                                                                condition_name,
+                                                                choice3,
+                                                                choice2,
+                                                                choice1)
+                                            result_count += 1
+                                elif condition_course == 'nil':
+                                    # condition_recommend check
+                                    if condition_recommend == 'recommended':
+                                        if row['predict_recommend'] == '1':
+                                            top_20 += 1
+                                            first_choice_count, choice3, choice2, choice1, start_sentence \
+                                                = add_to_choice(row,
+                                                                condition_course,
+                                                                condition_recommend,
+                                                                condition_topic,
+                                                                condition_name,
+                                                                choice3,
+                                                                choice2,
+                                                                choice1)
+                                            result_count += 1
+                                    elif condition_recommend == "not recommended":
+                                        top_20 += 1
+                                        first_choice_count, choice3, choice2, choice1, start_sentence \
+                                            = add_to_choice(row,
+                                                            condition_course,
+                                                            condition_recommend,
+                                                            condition_topic,
+                                                            condition_name,
+                                                            choice3,
+                                                            choice2,
+                                                            choice1)
+                                        result_count += 1
+                    else:
                         # condition_course check
                         if condition_course != 'nil':
-                            # row[3]
                             if condition_course.upper() == row['Course Code'].upper():
                                 # condition_recommend check
                                 if condition_recommend == 'recommended':
-                                    # row[5]
                                     if row['predict_recommend'] == '1':
                                         top_20 += 1
-                                        first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row,
-                                                                                                      condition_course,
-                                                                                                      condition_recommend,
-                                                                                                      condition_topic,
-                                                                                                      condition_name,
-                                                                                                      choice3,
-                                                                                                      choice2, choice1)
+                                        first_choice_count, choice3, choice2, choice1, start_sentence \
+                                            = add_to_choice(row,
+                                                            condition_course,
+                                                            condition_recommend,
+                                                            condition_topic,
+                                                            condition_name,
+                                                            choice3,
+                                                            choice2,
+                                                            choice1)
                                         result_count += 1
                                 elif condition_recommend == "not recommended":
                                     top_20 += 1
-                                    first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                                  condition_recommend,
-                                                                                                  condition_topic,
-                                                                                                  condition_name,
-                                                                                                  choice3,
-                                                                                                  choice2, choice1)
+                                    first_choice_count, choice3, choice2, choice1, start_sentence \
+                                        = add_to_choice(row,
+                                                        condition_course,
+                                                        condition_recommend,
+                                                        condition_topic,
+                                                        condition_name,
+                                                        choice3,
+                                                        choice2,
+                                                        choice1)
                                     result_count += 1
                         elif condition_course == 'nil':
                             # condition_recommend check
                             if condition_recommend == 'recommended':
                                 if row['predict_recommend'] == '1':
                                     top_20 += 1
-                                    first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                                  condition_recommend,
-                                                                                                  condition_topic,
-                                                                                                  condition_name,
-                                                                                                  choice3,
-                                                                                                  choice2, choice1)
+                                    first_choice_count, choice3, choice2, choice1, start_sentence \
+                                        = add_to_choice(row,
+                                                        condition_course,
+                                                        condition_recommend,
+                                                        condition_topic,
+                                                        condition_name,
+                                                        choice3,
+                                                        choice2,
+                                                        choice1)
                                     result_count += 1
                             elif condition_recommend == "not recommended":
                                 top_20 += 1
-                                first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                              condition_recommend,
-                                                                                              condition_topic,
-                                                                                              condition_name, choice3,
-                                                                                              choice2, choice1)
+                                first_choice_count, choice3, choice2, choice1, start_sentence \
+                                    = add_to_choice(row,
+                                                    condition_course,
+                                                    condition_recommend,
+                                                    condition_topic,
+                                                    condition_name,
+                                                    choice3,
+                                                    choice2,
+                                                    choice1)
                                 result_count += 1
+
             else:
-                # condition_course check
-                if condition_course != 'nil':
-                    if condition_course.upper() == row['Course Code'].upper():
+                # condition_topic check
+                if condition_topic != 'no':
+                    for topic in condition_topic:
+                        # row[6]
+                        if topic == row['predictedTopic']:
+                            # condition_course check
+                            if condition_course != 'nil':
+                                # row[3]
+                                if condition_course.upper() == row['Course Code'].upper():
+                                    # condition_recommend check
+                                    if condition_recommend == 'recommended':
+                                        # row[5]
+                                        if row['predict_recommend'] == '1':
+                                            top_20 += 1
+                                            first_choice_count, choice3, choice2, choice1, start_sentence \
+                                                = add_to_choice(row,
+                                                                condition_course,
+                                                                condition_recommend,
+                                                                condition_topic,
+                                                                condition_name,
+                                                                choice3,
+                                                                choice2,
+                                                                choice1)
+                                            result_count += 1
+                                    elif condition_recommend == "not recommended":
+                                        top_20 += 1
+                                        first_choice_count, choice3, choice2, choice1, start_sentence \
+                                            = add_to_choice(row,
+                                                            condition_course,
+                                                            condition_recommend,
+                                                            condition_topic,
+                                                            condition_name,
+                                                            choice3,
+                                                            choice2,
+                                                            choice1)
+                                        result_count += 1
+                            elif condition_course == 'nil':
+                                # condition_recommend check
+                                if condition_recommend == 'recommended':
+                                    if row['predict_recommend'] == '1':
+                                        top_20 += 1
+                                        first_choice_count, choice3, choice2, choice1, start_sentence \
+                                            = add_to_choice(row,
+                                                            condition_course,
+                                                            condition_recommend,
+                                                            condition_topic,
+                                                            condition_name,
+                                                            choice3,
+                                                            choice2,
+                                                            choice1)
+                                        result_count += 1
+                                elif condition_recommend == "not recommended":
+                                    top_20 += 1
+                                    first_choice_count, choice3, choice2, choice1, start_sentence \
+                                        = add_to_choice(row,
+                                                        condition_course,
+                                                        condition_recommend,
+                                                        condition_topic,
+                                                        condition_name,
+                                                        choice3,
+                                                        choice2,
+                                                        choice1)
+                                    result_count += 1
+                else:
+                    # condition_course check
+                    if condition_course != 'nil':
+                        if condition_course.upper() == row['Course Code'].upper():
+                            # condition_recommend check
+                            if condition_recommend == 'recommended':
+                                if row['predict_recommend'] == '1':
+                                    top_20 += 1
+                                    first_choice_count, choice3, choice2, choice1, start_sentence \
+                                        = add_to_choice(row,
+                                                        condition_course,
+                                                        condition_recommend,
+                                                        condition_topic,
+                                                        condition_name,
+                                                        choice3,
+                                                        choice2,
+                                                        choice1)
+                                    result_count += 1
+                            elif condition_recommend == "not recommended":
+                                top_20 += 1
+                                first_choice_count, choice3, choice2, choice1, start_sentence \
+                                    = add_to_choice(row,
+                                                    condition_course,
+                                                    condition_recommend,
+                                                    condition_topic,
+                                                    condition_name,
+                                                    choice3,
+                                                    choice2,
+                                                    choice1)
+                                result_count += 1
+                    elif condition_course == 'nil':
                         # condition_recommend check
                         if condition_recommend == 'recommended':
                             if row['predict_recommend'] == '1':
                                 top_20 += 1
-                                first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row,
-                                                                                              condition_course,
-                                                                                              condition_recommend,
-                                                                                              condition_topic,
-                                                                                              condition_name,
-                                                                                              choice3,
-                                                                                              choice2, choice1)
+                                first_choice_count, choice3, choice2, choice1, start_sentence \
+                                    = add_to_choice(row,
+                                                    condition_course,
+                                                    condition_recommend,
+                                                    condition_topic,
+                                                    condition_name,
+                                                    choice3,
+                                                    choice2,
+                                                    choice1)
                                 result_count += 1
                         elif condition_recommend == "not recommended":
                             top_20 += 1
-                            first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                          condition_recommend,
-                                                                                          condition_topic,
-                                                                                          condition_name,
-                                                                                          choice3,
-                                                                                          choice2, choice1)
+                            first_choice_count, choice3, choice2, choice1, start_sentence \
+                                = add_to_choice(row,
+                                                condition_course,
+                                                condition_recommend,
+                                                condition_topic,
+                                                condition_name,
+                                                choice3,
+                                                choice2,
+                                                choice1)
                             result_count += 1
-                elif condition_course == 'nil':
-                    # condition_recommend check
-                    if condition_recommend == 'recommended':
-                        if row['predict_recommend'] == '1':
-                            top_20 += 1
-                            first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                          condition_recommend,
-                                                                                          condition_topic,
-                                                                                          condition_name,
-                                                                                          choice3,
-                                                                                          choice2, choice1)
-                            result_count += 1
-                    elif condition_recommend == "not recommended":
-                        top_20 += 1
-                        first_choice_count, choice3, choice2, choice1, start_sentence = add_to_choice(row, condition_course,
-                                                                                      condition_recommend,
-                                                                                      condition_topic,
-                                                                                      condition_name,
-                                                                                      choice3,
-                                                                                      choice2, choice1)
-                        result_count += 1
+
         result = choice1 + choice2 + choice3
+
+        # modify text, to make it less chucky
+        # print('Checking ------ choice1[0] - ', choice1[0])
+        for i in range(len(result)):
+            splitwords = result[i][-1].split(" ", 10)
+            display_words = ' '.join(splitwords[0:10])
+            # result[i][-1] = display_words+"..."
+            text = result[i][-1].replace('"', '')
+            text = text.replace("'", '')
+            result[i][-1] = f"<a href=\'javascript:void(0)\' onclick=\'myDisplay(\"{text}\")\'>{display_words+'...'}</a>"
+        # print('Checking ------ choice1[0] - ', choice1[0])
 
         # remember the conditions
         if condition_course == 'nil':
@@ -380,17 +559,22 @@ def read_csv(condition_topic, condition_course, condition_recommend):
             gcondition_topic[0] = 'none'
         else:
             gcondition_topic[0] = condition_name
+        if condition_mentioned == 'no':
+            gcondition_mentioned = 'none'
+        else:
+            gcondition_mentioned = " who mentioned" + condition_mentioned
 
-        print(f'gobal conditions '
-              f'--- gcondition_course   | {gcondition_course}'
-              f'--- gcondition_recommend| {gcondition_recommended}'
-              f'--- gcondition_topic    | {gcondition_topic}')
+        print(f'gobal conditions \n'
+              f'--- gcondition_course   | {gcondition_course}\n'
+              f'--- gcondition_recommend| {gcondition_recommended}\n'
+              f'--- gcondition_topic    | {gcondition_topic}\n'
+              f'--- gcondition_mentioned| {gcondition_mentioned}')
         # if too many results
         if top_20 > 20:
             # first_choice_list = choice1
             # all_list = result
-            first_choice_list = tabulate(choice1, headers=start_sentence, tablefmt="pretty")
-            all_list = tabulate(result, headers=start_sentence, tablefmt="pretty")
+            first_choice_list = tabulate(choice1, headers=start_sentence, stralign="left")
+            all_list = tabulate(result, headers=start_sentence, stralign="left")
             all_list_count = result_count
             result_complete = 'no'
 
@@ -404,54 +588,73 @@ def read_csv(condition_topic, condition_course, condition_recommend):
             if gcondition_recommended == ['none', 0]:
                 gcondition_recommended[1] += 1
                 result += "<br>This list can be further filtered by recommendation. (Select the options below)" \
-                          "<br><input id=\"recommended\"   onclick=\"myFunction(\'Recommended Students\', \'recommended\', \'recommended\')\"   name=\"recommended\" type=\"radio\"/>" \
+                          "<br><input id=\"recommended\"   onclick=\"myFunction(\'recommended\', \'recommended\')\"   name=\"recommended\" type=\"radio\" value=\"Recommended Students\"/>" \
                           "<label for=\"recommended\">RECOMMENDED</label>" \
-                          "<br><input id=\"norecommended\" onclick=\"myFunction(\'No Need To Filter Recommendation\', \'no\', \'recommended\')\"name=\"recommended\" type=\"radio\" checked/>" \
+                          "<br><input id=\"norecommended\" onclick=\"myFunction(\'no\', \'recommended\')\"            name=\"recommended\" type=\"radio\" value=\"No Need To Filter Recommendation\" checked/>" \
                           "<label for=\"norecommended\">NO NEED</label>" \
                           "<br>"
             if gcondition_topic == ['none', 0]:
                 gcondition_topic[1] += 1
                 result += "<br>This list can be further filtered by topics. (Select the options below)" \
-                          "<br><input onclick=\"myFunction(\'Students with IT Skills\', \'topic_1\', \'topic\')\"       name=\"topic\" id=\"topic_1\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'topic_1\', \'topic\')\" name=\"topic\" id=\"topic_1\" type=\"radio\" value=\"Students with IT Skills\"/>" \
                           "<label for=\"topic_1\">IT SKILLS - DATA, PYTHON, CODING, PROGRAMMING</label>" \
-                          "<br><input onclick=\"myFunction(\'Students with Achievement\', \'topic_2\', \'topic\')\"     name=\"topic\" id=\"topic_2\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'topic_2\', \'topic\')\" name=\"topic\" id=\"topic_2\" type=\"radio\" value=\"Students with Achievement\"/>" \
                           "<label for=\"topic_2\">ACHIEVEMENT</label>" \
-                          "<br><input onclick=\"myFunction(\'Students with  Participation\', \'topic_3\', \'topic\')\"  name=\"topic\" id=\"topic_3\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'topic_3\', \'topic\')\" name=\"topic\" id=\"topic_3\" type=\"radio\" value=\"Students with  Participation\"/>" \
                           "<label for=\"topic_3\">PARTICIPATION</label>" \
-                          "<br><input onclick=\"myFunction(\'Other Students\', \'topic_4\', \'topic\')\"                name=\"topic\" id=\"topic_4\" type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'topic_4\', \'topic\')\" name=\"topic\" id=\"topic_4\" type=\"radio\" value=\"Other Students\"/>" \
                           "<label for=\"topic_4\">OTHERS - BUSINESS, CERTIFICATE, CCA, CHALLENGES</label>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter Topic\', \'no\', \'topic\')\"            name=\"topic\" id=\"notopic\" type=\"radio\" checked/>" \
+                          "<br><input onclick=\"myFunction(\'no\', \'topic\')\"      name=\"topic\" id=\"notopic\" type=\"radio\" value=\"No Need To Filter Topic\" checked/>" \
                           "<label for=\"notopic\">NO NEED</label>" \
                           "<br>"
             if gcondition_course == ['none', 0]:
                 gcondition_course[1] += 1
                 result += "<br>This list can be further filtered by course. (Select the options below)" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business & Financial Technology\', \'dbft\', \'course\')\"      name=\"course\" id=\"dbft\"     type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'dbft\', \'course\')\"  name=\"course\" id=\"dbft\"     type=\"radio\" value=\"Students in Diploma of Business & Financial Technology\"/>" \
                           "<label for=\"dbft\">Business & Financial Technology</label>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Common ICT Program\', \'cip\', \'course\')\"                    name=\"course\" id=\"cip\"      type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'cip\', \'course\')\"   name=\"course\" id=\"cip\"      type=\"radio\" value=\"Students in Diploma of Common ICT Program\">" \
                           "<label for=\"cip\">Common ICT Program</label>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Business Intelligence & Analytics\', \'dba\', \'course\')\"     name=\"course\" id=\"dba\"      type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'dba\', \'course\')\"   name=\"course\" id=\"dba\"      type=\"radio\" value=\"Students in Diploma of Business Intelligence & Analytics\"/>" \
                           "<label for=\"dba\">Business Intelligence & Analytics</label>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Cybersecurity & Digital Forensics\', \'dsf\', \'course\')\"     name=\"course\" id=\"dsf\"      type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'dsf\', \'course\')\"   name=\"course\" id=\"dsf\"      type=\"radio\" value=\"Students in Diploma of Cybersecurity & Digital Forensics\">" \
                           "<label for=\"dsf\">Cybersecurity & Digital Forensics</label>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Infocomm & Security\', \'dcs\', \'course\')\"                   name=\"course\" id=\"dcs\"      type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'dcs\', \'course\')\"   name=\"course\" id=\"dcs\"      type=\"radio\" value=\"Students in Diploma of Infocomm & Security\"/>" \
                           "<label for=\"dcs\">Infocomm & Security</label>" \
-                          "<br><input onclick=\"myFunction(\'Students in Diploma of Information Technology\', \'dit\', \'course\')\"                name=\"course\" id=\"dit\"      type=\"radio\"/>" \
+                          "<br><input onclick=\"myFunction(\'dit\', \'course\')\"   name=\"course\" id=\"dit\"      type=\"radio\" value=\"Students in Diploma of Information Technology\"/>" \
                           "<label for=\"dit\">Information Technology</label>" \
-                          "<br><input onclick=\"myFunction(\'No Need To Filter Course\', \'no\', \'course\')\"                                      name=\"course\" id=\"nocourse\" type=\"radio\" checked/>" \
-                          "<label for=\"nocourse\">no need</label>" \
+                          "<br><input onclick=\"myFunction(\'no\', \'course\')\"    name=\"course\" id=\"nocourse\" type=\"radio\" value=\"No Need To Filter Course\" checked/>" \
+                          "<label for=\"nocourse\">NO NEED</label>" \
                           "<br>"
-            else:
-                result += "<br>You can compare the result with another course. (Select the options below)" \
-                          ""
+            if gcondition_course[1] < 2:
+                gcondition_course[1] += 1
+                result += "<br>You can compare the result with another course. (Select the options below)"
+                # 35, 36, 43, 54, 80, 85
+                if condition_course != "c35":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Business & Financial Technology\',\'dbft\',\'compare\')\"     name=\"compare\" id=\"c35\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c35\">Business & Financial Technology</label>"
+                if condition_course != "c36":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Common ICT Program\',\'cip\',\'compare\')\"                   name=\"compare\" id=\"c36\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c36\">Common ICT Program</label>"
+                if condition_course != "c43":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Business Intelligence & Analytics\',\'dba\',\'compare\')\"    name=\"compare\" id=\"c43\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c43\">Business Intelligence & Analytics</label>"
+                if condition_course != "c54":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Cybersecurity & Digital Forensics\',\'dsf\',\'compare\')\"    name=\"compare\" id=\"c54\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c54\">Cybersecurity & Digital Forensics</label>"
+                if condition_course != "c80":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Infocomm & Security\',\'dcs\',\'compare\')\"                  name=\"compare\" id=\"c80\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c80\">Infocomm & Security</label>"
+                if condition_course != "c85":
+                    result += "<br><input onclick=\"myFunction(\'Compare with Information Technology\',\'dit\',\'compare\')\"               name=\"compare\" id=\"c85\" type=\"radio\" value=\"\"/>" \
+                              "<label for=\"c85\">Information Technology</label>"
 
             result += "<br>Would you like to look for students who applied 1st choice? (Select the options below)" \
-                      "<br><input onclick=\"myFunction(\'Yes\', \'yes\', \'choice\')\"  id=\"yeschoice\" name=\"choice\" type=\"radio\"/>" \
+                      "<br><input onclick=\"myFunction(\'yes\', \'choice\')\" id=\"yeschoice\" name=\"choice\" type=\"radio\" value=\"Yes\"/>" \
                       "<label for=\"yeschoice\">YES</label>" \
-                      "<br><input onclick=\"myFunction(\'No\', \'no\', \'choice\')\"    id=\"nochoice\"  name=\"choice\" type=\"radio\" checked/>" \
+                      "<br><input onclick=\"myFunction(\'no\', \'choice\')\"  id=\"nochoice\"  name=\"choice\" type=\"radio\" value=\"No\" checked/>" \
                       "<label for=\"nochoice\">NO NEED</label>" \
                       "<br><input id=\"butclick\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\" value=\"FILTER\"/><br>"
-            result += f"<br><input id=\"firstrequest\" type=\"text\" value=\"{' '.join(first_request)}\" hidden>"
+            result += f"<input id=\"firstrequest\" type=\"text\" value=\"{' '.join(first_request)}\" hidden>"
             # button----------------------
             # result = \
             #     "The list is too long ({0}{1}{2}{3}students)."\
@@ -496,7 +699,7 @@ def read_csv(condition_topic, condition_course, condition_recommend):
             #               "<br>"
         else:
             all_list_count = result_count
-            result = tabulate(result, headers=start_sentence, tablefmt="pretty")
+            result = tabulate(result, headers=start_sentence, tablefmt="grid", stralign="left")
             result_complete = 'yes'
 
         print(f'Processed top {top_20} in total.')
@@ -518,14 +721,15 @@ def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
     print("---return:", sentence_words)
-    result_check_sentence, condition_course, condition_recommend = check_sentence(sentence_words)
-    return result_check_sentence, condition_course, condition_recommend
+    result_check_sentence, condition_course, condition_recommend, condition_mentioned = check_sentence(sentence_words)
+    return result_check_sentence, condition_course, condition_recommend, condition_mentioned
 
 
 # Check sentence for conditions
 def check_sentence(sentence):
     condition_course = 'nil'
     condition_recommend = 'not recommended'
+    condition_mentioned = 'no'
     print("---enter check_sentence(sentence)", sentence)
     for i, w in enumerate(sentence):
         # sentence = ['some', 'words', 'here']
@@ -560,6 +764,13 @@ def check_sentence(sentence):
         '''
         if w == 'recommend' or w == 'recommended':
             condition_recommend = 'recommended'
+        '''
+        setting condition_mentioned
+        '''
+        if w == 'mentioned' or w == 'mention':
+            condition_mentioned = ' '+sentence[i+1]
+            sentence[i] = 'wrote'
+            sentence[i+1] = ''
         # '''
         # setting condition_topic
         # '''
@@ -620,9 +831,8 @@ def check_sentence(sentence):
         #     if w == s:
         #         sentence[i] = 'topic_4'
 
-
-    print("---return sentence:", sentence, condition_course, condition_recommend)
-    return sentence, condition_course, condition_recommend
+    print("---return sentence:", sentence, condition_course, condition_recommend, condition_mentioned)
+    return sentence, condition_course, condition_recommend, condition_mentioned
 
 
 # return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
