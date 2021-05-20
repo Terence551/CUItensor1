@@ -653,7 +653,7 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
                       "<br><input onclick=\"myFunction(\'no\', \'choice\')\"  id=\"nochoice\"  name=\"choice\" type=\"radio\" value=\"No\" checked/>" \
                       "<label for=\"nochoice\">NO NEED</label>" \
                       "<br><input id=\"butclick\" type=\"submit\" class=\"btn btn-info form-control\" form=\"clickingForm\" value=\"FILTER\"/><br>"
-            result += f"<input id=\"firstrequest\" type=\"text\" value=\"{' '.join(first_request)}\" hidden>"
+            result += f"<input id=\"firstrequest\" type=\"text\" value=\"{first_request}\" hidden>"
         else:
             all_list_count = result_count
             result = tabulate(result, headers=start_sentence, tablefmt="grid", stralign="left")
