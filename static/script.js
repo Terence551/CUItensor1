@@ -69,7 +69,7 @@ $(document).ready(function(){
                 console.log("error: "+err);
             };
             var botHtml = '<pre><p class="botText"><span>' + data + "</span></p></pre>";
-            $("#chatbox").append($.parseHTML(bo tHtml));
+            $("#chatbox").append($.parseHTML(botHtml));
             document.getElementById("userInput").scrollIntoView({
                 block: "start",
                 behavior: "smooth",
@@ -91,14 +91,16 @@ $(document).ready(function(){
             var couT = $("input[type='radio'][name='course']:checked").val() + "<br>";
             var topT = $("input[type='radio'][name='topic']:checked").val() + "<br>";
             var choT = $("input[type='radio'][name='choice']:checked").val() + "<br>";
-            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
+//            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
             var recV = document.getElementById('textvrec').textContent;
             var couV = document.getElementById('textvcou').textContent;
             var topV = document.getElementById('textvtop').textContent;
             var choV = document.getElementById('textvcho').textContent;
-            var comV = document.getElementById('textvcom').textContent;
-            var rawText = recT + topT + couT + comT + choT;
-            var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + comT + " " + choV;
+//            var comV = document.getElementById('textvcom').textContent;
+//            var rawText = recT + topT + couT + comT + choT;
+//            var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + comT + " " + choV;
+            var rawText = recT + topT + couT + choT;
+            var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + choV;
             console.log("rawV: " + rawValue);
             var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
             $("#chatbox").append(userHtml);

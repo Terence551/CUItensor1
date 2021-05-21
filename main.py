@@ -622,28 +622,29 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
                           "<br><input onclick=\"myFunction(\'no\', \'course\')\"    name=\"course\" id=\"nocourse\" type=\"radio\" value=\"No Need To Filter Course\" checked/>" \
                           "<label for=\"nocourse\">NO NEED</label>" \
                           "<br>"
-            if gcondition_course[1] < 2:
-                gcondition_course[1] += 1
-                result += "<br>You can compare the result with another course. (Select the options below)"
-                # 35, 36, 43, 54, 80, 85
-                if condition_course != "c35":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Business & Financial Technology\',\'dbft\',\'compare\')\"     name=\"compare\" id=\"c35\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c35\">Business & Financial Technology</label>"
-                if condition_course != "c36":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Common ICT Program\',\'cip\',\'compare\')\"                   name=\"compare\" id=\"c36\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c36\">Common ICT Program</label>"
-                if condition_course != "c43":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Business Intelligence & Analytics\',\'dba\',\'compare\')\"    name=\"compare\" id=\"c43\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c43\">Business Intelligence & Analytics</label>"
-                if condition_course != "c54":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Cybersecurity & Digital Forensics\',\'dsf\',\'compare\')\"    name=\"compare\" id=\"c54\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c54\">Cybersecurity & Digital Forensics</label>"
-                if condition_course != "c80":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Infocomm & Security\',\'dcs\',\'compare\')\"                  name=\"compare\" id=\"c80\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c80\">Infocomm & Security</label>"
-                if condition_course != "c85":
-                    result += "<br><input onclick=\"myFunction(\'Compare with Information Technology\',\'dit\',\'compare\')\"               name=\"compare\" id=\"c85\" type=\"radio\" value=\"\"/>" \
-                              "<label for=\"c85\">Information Technology</label>"
+            #     uncompleted compare function
+            # if gcondition_course[1] < 2:
+            #     gcondition_course[1] += 1
+            #     result += "<br>You can compare the result with another course. (Select the options below)"
+            #     # 35, 36, 43, 54, 80, 85
+            #     if condition_course != "c35":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Business & Financial Technology\',\'dbft\',\'compare\')\"     name=\"compare\" id=\"c35\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c35\">Business & Financial Technology</label>"
+            #     if condition_course != "c36":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Common ICT Program\',\'cip\',\'compare\')\"                   name=\"compare\" id=\"c36\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c36\">Common ICT Program</label>"
+            #     if condition_course != "c43":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Business Intelligence & Analytics\',\'dba\',\'compare\')\"    name=\"compare\" id=\"c43\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c43\">Business Intelligence & Analytics</label>"
+            #     if condition_course != "c54":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Cybersecurity & Digital Forensics\',\'dsf\',\'compare\')\"    name=\"compare\" id=\"c54\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c54\">Cybersecurity & Digital Forensics</label>"
+            #     if condition_course != "c80":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Infocomm & Security\',\'dcs\',\'compare\')\"                  name=\"compare\" id=\"c80\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c80\">Infocomm & Security</label>"
+            #     if condition_course != "c85":
+            #         result += "<br><input onclick=\"myFunction(\'Compare with Information Technology\',\'dit\',\'compare\')\"               name=\"compare\" id=\"c85\" type=\"radio\" value=\"\"/>" \
+            #                   "<label for=\"c85\">Information Technology</label>"
 
             result += "<br>Would you like to look for students who applied 1st choice? (Select the options below)" \
                       "<br><input onclick=\"myFunction(\'yes\', \'choice\')\" id=\"yeschoice\" name=\"choice\" type=\"radio\" value=\"Yes\"/>" \
