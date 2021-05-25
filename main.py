@@ -83,6 +83,7 @@ def chatbot_response():
         gcondition_course = ["", 0]
         gcondition_topic = ["", 0]
         gcondition_recommended = ["", 0]
+        gcondition_mentioned = ""
         gcontext = 'start'
         first_request = []
         msg = request.form["msg"]
