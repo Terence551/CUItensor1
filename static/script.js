@@ -88,27 +88,16 @@ $(document).ready(function(){
             var first_requestV = document.getElementById('firstrequest').value;
             document.getElementById('firstrequest').remove();
             var recT = $("input[type='radio'][name='recommended']:checked") === undefined ? '' : $("input[type='radio'][name='recommended']:checked").val() + "<br>";
-//            if ($("input[type='radio'][name='recommended']:checked").val() === undefined){
-//                recT = ''
-//            }
             //or document.querySelector("input[name=recommended]:checked").value
-            var couT = $("input[type='radio'][name='course']:checked") === undefined ? '' : $("input[type='radio'][name='course']:checked").val() + "<br>";
-//            if ($("input[type='radio'][name='course']:checked").val() === undefined){
-//                couT = ''
-//            }
-            var topT = $("input[type='radio'][name='topic']:checked") === undefined ? '' : $("input[type='radio'][name='topic']:checked").val() + "<br>";
-//            if ($("input[type='radio'][name='topic']:checked").val() === undefined){
-//                topT = ''
-//            }
-            var choT = $("input[type='radio'][name='choice']:checked") === undefined ? '' : $("input[type='radio'][name='choice']:checked").val() + "<br>";
-//            if ($("input[type='radio'][name='choice']:checked").val() === undefined){
-//                choT = ''
-//            }
+            var couT = $("input[type='radio'][name='course']:checked") === undefined ? ' ' : $("input[type='radio'][name='course']:checked").val() + "<br>";
+            var topT = $("input[type='radio'][name='topic']:checked") === undefined ? ' ' : $("input[type='radio'][name='topic']:checked").val() + "<br>";
+            var choT = $("input[type='radio'][name='choice']:checked") === undefined ? ' ' : $("input[type='radio'][name='choice']:checked").val() + "<br>";
+
 //            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
-            var recV = document.getElementById('textvrec').textContent;
-            var couV = document.getElementById('textvcou').textContent;
-            var topV = document.getElementById('textvtop').textContent;
-            var choV = document.getElementById('textvcho').textContent;
+            var recV = document.getElementById('textvrec') === undefined ? ' ' : document.getElementById('textvrec').textContent;
+            var couV = document.getElementById('textvcou') === undefined ? ' ' : document.getElementById('textvcou').textContent;
+            var topV = document.getElementById('textvtop') === undefined ? ' ' : document.getElementById('textvtop').textContent;
+            var choV = document.getElementById('textvcho') === undefined ? ' ' : document.getElementById('textvcho').textContent;
 //            var comV = document.getElementById('textvcom').textContent;
 //            var rawText = recT + topT + couT + comT + choT;
 //            var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + comT + " " + choV;
