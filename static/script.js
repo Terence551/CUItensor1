@@ -87,23 +87,23 @@ $(document).ready(function(){
             //            assigning var
             var first_requestV = document.getElementById('firstrequest').value;
             document.getElementById('firstrequest').remove();
-            var recT = $("input[type='radio'][name='recommended']:checked").val() + "<br>";
-            if ($("input[type='radio'][name='recommended']:checked").val() === 'undefined'){
-                recT = ''
-            }
+            var recT = $("input[type='radio'][name='recommended']:checked") === undefined ? '' : $("input[type='radio'][name='recommended']:checked").val() + "<br>";
+//            if ($("input[type='radio'][name='recommended']:checked").val() === undefined){
+//                recT = ''
+//            }
             //or document.querySelector("input[name=recommended]:checked").value
-            var couT = $("input[type='radio'][name='course']:checked").val() + "<br>";
-            if ($("input[type='radio'][name='course']:checked").val() === 'undefined'){
-                couT = ''
-            }
-            var topT = $("input[type='radio'][name='topic']:checked").val() + "<br>";
-            if ($("input[type='radio'][name='topic']:checked").val() === 'undefined'){
-                topT = ''
-            }
-            var choT = $("input[type='radio'][name='choice']:checked").val() + "<br>";
-            if ($("input[type='radio'][name='choice']:checked").val() === 'undefined'){
-                choT = ''
-            }
+            var couT = $("input[type='radio'][name='course']:checked") === undefined ? '' : $("input[type='radio'][name='course']:checked").val() + "<br>";
+//            if ($("input[type='radio'][name='course']:checked").val() === undefined){
+//                couT = ''
+//            }
+            var topT = $("input[type='radio'][name='topic']:checked") === undefined ? '' : $("input[type='radio'][name='topic']:checked").val() + "<br>";
+//            if ($("input[type='radio'][name='topic']:checked").val() === undefined){
+//                topT = ''
+//            }
+            var choT = $("input[type='radio'][name='choice']:checked") === undefined ? '' : $("input[type='radio'][name='choice']:checked").val() + "<br>";
+//            if ($("input[type='radio'][name='choice']:checked").val() === undefined){
+//                choT = ''
+//            }
 //            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
             var recV = document.getElementById('textvrec').textContent;
             var couV = document.getElementById('textvcou').textContent;
