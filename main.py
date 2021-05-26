@@ -241,6 +241,8 @@ def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, c
         choice1 += [row_to_be_added]
         first_choice_count += 1
 
+    print(row['predict_recommend'])
+
     return first_choice_count, choice3, choice2, choice1, start_sentence
 
 
@@ -656,6 +658,7 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
             result += f"<input id=\"firstrequest\" type=\"text\" value=\"{first_request}\" hidden>"
         else:
             all_list_count = result_count
+            first_choice_list = tabulate(choice1, headers=start_sentence, stralign="left")
             result = tabulate(result, headers=start_sentence, tablefmt="grid", stralign="left")
             result_complete = 'yes'
 
