@@ -547,7 +547,7 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
         # print('Checking ------ choice1[0] - ', choice1[0])
 
         # remember the conditions
-        if condition_course == 'nil':
+        if condition_course == 'nil' or condition_mentioned == '':
             gcondition_course[0] = 'none'
         else:
             gcondition_course[0] = condition_course
@@ -555,11 +555,11 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
             gcondition_recommended[0] = 'none'
         else:
             gcondition_recommended[0] = condition_recommend
-        if condition_topic == 'no':
+        if condition_topic == 'no' or condition_mentioned == '':
             gcondition_topic[0] = 'none'
         else:
             gcondition_topic[0] = condition_name
-        if condition_mentioned == 'no':
+        if condition_mentioned == 'no' or condition_mentioned == '':
             gcondition_mentioned = 'none'
         else:
             gcondition_mentioned = " who mentioned" + condition_mentioned
