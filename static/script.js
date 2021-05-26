@@ -56,14 +56,11 @@ $(document).ready(function(){
                     document.getElementById("c80").remove();
                     document.getElementById("c85").remove();
                 }catch(err){console.log("compare error: "+err);}
-                $("#textsrec").val("");
-                $("#textvrec").val("");
-                $("#textscou").val("");
-                $("#textvcou").val("");
-                $("#textstop").val("");
-                $("#textvtop").val("");
-                $("#textscho").val("");
-                $("#textvcho").val("");
+                $("#textvrec").textContent = "";
+                $("#textvcou").textContent = "";
+                $("#textvtop").textContent = "";
+                $("#textvcho").textContent = "";
+                $("#textvcom").textContent = "";
             }
             catch(err){
                 console.log("error: "+err);
@@ -164,11 +161,11 @@ $(document).ready(function(){
                     document.getElementById("c80").remove();
                     document.getElementById("c85").remove();
                 }catch(err){console.log("compare error: "+err);}
-                $("#textvrec").val("");
-                $("#textvcou").val("");
-                $("#textvtop").val("");
-                $("#textvcho").val("");
-                $("#textvcom").val("");
+                $("#textvrec").textContent = "";
+                $("#textvcou").textContent = "";
+                $("#textvtop").textContent = "";
+                $("#textvcho").textContent = "";
+                $("#textvcom").textContent = "";
                 document.getElementById("userInput").scrollIntoView({
                     block: "start",
                     behavior: "smooth",
