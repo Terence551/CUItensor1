@@ -89,7 +89,7 @@ $(document).ready(function(){
             var couT = document.querySelector("input[name=course]") === null ? ' ' : $("input[type='radio'][name='course']:checked").val() + "<br>";
             var topT = document.querySelector("input[name=topic]") === null ? ' ' : $("input[type='radio'][name='topic']:checked").val() + "<br>";
             var choT = document.querySelector("input[name=choice]") === null ? ' ' : $("input[type='radio'][name='choice']:checked").val() + "<br>";
-
+//ete
 //            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
             var recV = document.getElementById('textvrec') === null ? ' ' : document.getElementById('textvrec').textContent;
             var couV = document.getElementById('textvcou') === null ? ' ' : document.getElementById('textvcou').textContent;
