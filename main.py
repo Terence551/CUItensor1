@@ -62,11 +62,6 @@ def chatbot_response():
     condition_recommend = ''
     condition_course = ''
     msgtopic = ''
-    # initialize request
-    # if first_request:
-    #     msg = first_request
-    # else:
-    #     msg = request.form["msg"]
     if request.form["msg"] == " ":
         if request.form["continue"] == " " and first_request == "":
             print("Empty")
@@ -164,11 +159,6 @@ def chatbot_response():
     # print("---return:", res)
     return res
 
-# get details
-# def more_conversation(condition, context):
-#     print(condition, context)
-#
-
 
 # setting condition_topic
 def set_condition_topic(condition_topic):
@@ -244,8 +234,6 @@ def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, c
     print(row['predict_recommend'])
 
     return first_choice_count, choice3, choice2, choice1, start_sentence
-
-
 
 
 # reading csv file

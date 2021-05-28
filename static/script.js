@@ -11,9 +11,6 @@ $(document).ready(function(){
                 msg: rawText,
                 'continue': " ",
                 'topic': " ",
-//                'rec': " ",
-//                'cou': " ",
-//                'cho': " ",
             },
             type: "POST",
             url: "/get",
@@ -71,9 +68,6 @@ $(document).ready(function(){
                 block: "start",
                 behavior: "smooth",
             });
-//            document.getElementById('loader').innerHTML = data;
-//            document.getElementById('loader').removeAttribute('id');
-//            document.querySelector('#loader').removeAttribute('id');
         });
         event.preventDefault();
     });
@@ -89,15 +83,11 @@ $(document).ready(function(){
             var couT = document.querySelector("input[name=course]") === null ? ' ' : $("input[type='radio'][name='course']:checked").val() + "<br>";
             var topT = document.querySelector("input[name=topic]") === null ? ' ' : $("input[type='radio'][name='topic']:checked").val() + "<br>";
             var choT = document.querySelector("input[name=choice]") === null ? ' ' : $("input[type='radio'][name='choice']:checked").val() + "<br>";
-//ete
-//            var comT = $("input[type='radio'][name='compare']:checked").val() + "<br>";
+
             var recV = document.getElementById('textvrec') === null ? ' ' : document.getElementById('textvrec').textContent;
             var couV = document.getElementById('textvcou') === null ? ' ' : document.getElementById('textvcou').textContent;
             var topV = document.getElementById('textvtop') === null ? ' ' : document.getElementById('textvtop').textContent;
             var choV = document.getElementById('textvcho') === null ? ' ' : document.getElementById('textvcho').textContent;
-//            var comV = document.getElementById('textvcom').textContent;
-//            var rawText = recT + topT + couT + comT + choT;
-//            var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + comT + " " + choV;
             var rawText = recT + topT + couT + choT;
             var rawValue = first_requestV + " " + recV + " " + topV + " " + couV + " " + choV;
             console.log("rawV: " + rawValue);
@@ -109,9 +99,6 @@ $(document).ready(function(){
                     msg: " ",
                     'continue': rawValue,
                     'topic': topV,
-//                    'rec': recV,
-//                    'cou': couV,
-//                    'cho': choV,
                 },
                 type: "POST",
                 url: "/get",
@@ -123,8 +110,6 @@ $(document).ready(function(){
                     block: "start",
                     behavior: "smooth",
                 });
-//                document.getElementById('loader').innerHTML = data;
-//                document.getElementById('loader').removeAttribute('id');
 //              clearing content
                 try{
                     document.getElementById("yeschoice").remove();
