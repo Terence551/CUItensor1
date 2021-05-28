@@ -151,6 +151,11 @@ def chatbot_response():
                               str(gcondition_mentioned) + " ") \
                       .replace('none', '') + str(res)
             res += "<br><br>Anything else I can help you now?"
+            gcondition_course = ["", 0]
+            gcondition_topic = ["", 0]
+            gcondition_recommended = ["", 0]
+            gcontext = ''
+            first_request = []
     elif res == '':
         res += "Sorry, i didnt catch that, could you repeat?"
     else:
@@ -231,8 +236,6 @@ def add_to_choice(row, course, recommend, topic, topic_name, choice3, choice2, c
         choice1 += [row_to_be_added]
         first_choice_count += 1
 
-    print(row['predict_recommend'])
-
     return first_choice_count, choice3, choice2, choice1, start_sentence
 
 
@@ -260,10 +263,6 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
     choice2 = []
     choice3 = []
     start_sentence = []
-    # reading result from file
-    # with open('finalfinal.csv', mode='r') as csv_file:
-    #     csv_reader = sorted(csv_file, key=lambda row: row[7])
-    #     csv_reader = csv.DictReader(csv_reader)
     with open('finalfinalsortedPredProd.csv', mode='r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
@@ -559,14 +558,11 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
               f'--- gcondition_mentioned| {gcondition_mentioned}')
         # if too many results
         if top_20 > 20:
-            # first_choice_list = choice1
-            # all_list = result
             first_choice_list = tabulate(choice1, headers=start_sentence, stralign="left")
             all_list = tabulate(result, headers=start_sentence, stralign="left")
             all_list_count = result_count
             result_complete = 'no'
-
-            # radio--------------------
+            # filter--------------------
             result = \
                 "The list is too long ({0}{1}{2}{3}students)." \
                     .format(str(result_count) + " ",
@@ -613,29 +609,6 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
                           "<br><input onclick=\"myFunction(\'no\', \'course\')\"    name=\"course\" id=\"nocourse\" type=\"radio\" value=\"No Need To Filter Course\" checked/>" \
                           "<label for=\"nocourse\">NO NEED</label>" \
                           "<br>"
-            #     uncompleted compare function
-            # if gcondition_course[1] < 2:
-            #     gcondition_course[1] += 1
-            #     result += "<br>You can compare the result with another course. (Select the options below)"
-            #     # 35, 36, 43, 54, 80, 85
-            #     if condition_course != "c35":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Business & Financial Technology\',\'dbft\',\'compare\')\"     name=\"compare\" id=\"c35\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c35\">Business & Financial Technology</label>"
-            #     if condition_course != "c36":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Common ICT Program\',\'cip\',\'compare\')\"                   name=\"compare\" id=\"c36\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c36\">Common ICT Program</label>"
-            #     if condition_course != "c43":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Business Intelligence & Analytics\',\'dba\',\'compare\')\"    name=\"compare\" id=\"c43\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c43\">Business Intelligence & Analytics</label>"
-            #     if condition_course != "c54":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Cybersecurity & Digital Forensics\',\'dsf\',\'compare\')\"    name=\"compare\" id=\"c54\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c54\">Cybersecurity & Digital Forensics</label>"
-            #     if condition_course != "c80":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Infocomm & Security\',\'dcs\',\'compare\')\"                  name=\"compare\" id=\"c80\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c80\">Infocomm & Security</label>"
-            #     if condition_course != "c85":
-            #         result += "<br><input onclick=\"myFunction(\'Compare with Information Technology\',\'dit\',\'compare\')\"               name=\"compare\" id=\"c85\" type=\"radio\" value=\"\"/>" \
-            #                   "<label for=\"c85\">Information Technology</label>"
 
             result += "<br>Would you like to look for students who applied 1st choice? (Select the options below)" \
                       "<br><input onclick=\"myFunction(\'yes\', \'choice\')\" id=\"yeschoice\" name=\"choice\" type=\"radio\" value=\"Yes\"/>" \
@@ -658,9 +631,6 @@ def read_csv(condition_topic, condition_course, condition_recommend, condition_m
         print(f'first_request - {first_request}')
 
     return result_complete, result
-
-
-# add to result
 
 
 # chat functionalities
